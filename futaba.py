@@ -2,18 +2,20 @@
 # -*- coding:utf-8 -*-
 
 from bottle import route, run, template, response
+from bs4 import BeautifulSoup
 import urllib
 import urllib2
 import re
 import cookielib
 import os
+import futabathread
 
 FUTABA_CAT_URL = 'http://%s.2chan.net/%s/futaba.php?mode=cat'
 FUTABA_CATSET_URL = 'http://%s.2chan.net/%s/futaba.php?mode=catset'
-FUTABA_THREAD_URL = 'http://%s.2chan.net/%s/res/%s.htm'
-FUTABA_ENCODING = 'cp932'
-FUTABA_MOJISU = 100
-FUTABA_BOARDLST = {('zip','1'): u'野球＠ふたば',
+futaba_thread_url = 'http://%s.2chan.net/%s/res/%s.htm'
+futaba_url = 'http://%s.2chan.net'
+futaba_encoding = 'cp932'
+futaba_boards = {('zip','1'): u'野球＠ふたば',
 ('zip','12'): u'サッカー＠ふたば',
 ('may','25'): u'麻雀＠ふたば',
 ('may','26'): u'うま＠ふたば',
@@ -91,35 +93,34 @@ FUTABA_BOARDLST = {('zip','1'): u'野球＠ふたば',
 ('jun','junbi'): u'準備＠ふたば',
 }
 FUTABA_CAT_TERM = "<td><a href='(.*)' target='_blank'>(.*)<font size=2>(.*)</font></td>"
-FUTABA_THREADMASTER_TERM = u"(?:画像ファイル名\：<a href=\"(?P<imgurl>.*)\" target=\"_blank\">(?:.*)</a>(?:.*)<small>サムネ表示</small><br><a href.*?><img src.*?></a>)?<input type.*?>(?:<font color='#cc1105'><b>(?P<title>.*)</b></font> \nName <font color='#117743'><b>(?:<a href=\"mailto\:(?P<mail>.*)\">)?(?P<name>.*) (?:</a>)?</b></font>)? ?(?P<time>.*?) ?(?:<a class=del href=\".*?\">del</a>)?\n<small>(?P<expire>.*)</small>\n<blockquote>(?P<body>.*)</blockquote>"
-FUTABA_RESPONSE_TERM = u"<input type=checkbox name=\".*\" value=delete id=delcheck.*>(?:<font color='#cc1105'><b>(?P<title>.*)</b></font> \nName <font color='#.*'><b>(?:<a href=\"mailto\:(?P<mail>.*)\">)?(?P<name>.*) (?:</a>)?</b></font>)? ?(?P<time>.*) ?<a class=del href=\"javascript:void\(0\);\" onclick=\"del\(.*\);return\(false\);\">del</a>\n(?:<br> &nbsp; &nbsp; <a href=\".*\" target=\"_blank\">.*</a>-\(.* B\) <small>サムネ表示</small><br><a href=\"(?P<imgurl>.*)\" target=\"_blank\"><img src.*?></a>)?<blockquote(?:.*?)>(?P<body>.*)</blockquote>"
 
 ############################################################
 
+# トップページ
 @route('/', method='get')
 def add_get():
     response.content_type = 'text/html; charset="shift_jis"'
-    return template('top', keys=FUTABA_BOARDLST.keys(), boards=FUTABA_BOARDLST)
-
+    return template('top', keys=futaba_boards.keys(), boards=futaba_boards)
+# 各板のページ
 @route('/<subadr>_<board>/subject.txt')
 def add_get(subadr,board):
     response.content_type = 'text/plain; charset="shift_jis"'
-    return makesubject({'subaddr':subadr, 'bdname':board}).encode(FUTABA_ENCODING)
-
+    return makesubject({'subaddr':subadr, 'bdname':board}).encode(futaba_encoding)
+# 各板の名前を返すページ
 @route('/<subadr>_<board>/SETTING.TXT')
 def add_get(subadr,board):
     response.content_type = 'text/plain; charset="shift_jis"'
-    return u'BBS_TITLE=%s'%(getboardname({'subaddr':subadr, 'bdname':board})).encode(FUTABA_ENCODING)
-
+    return u'BBS_TITLE=%s'%(getboardname({'subaddr':subadr, 'bdname':board})).encode(futaba_encoding)
+# トップページを開いたときのタイトルを各板の名前にしておく(2chmateで有効だった)
 @route('/<subadr>_<board>/')
 def add_get(subadr,board):
     response.content_type = 'text/plain; charset="shift_jis"'
-    return (u'<title>%s</title>'%getboardname({'subaddr':subadr, 'bdname':board})).encode(FUTABA_ENCODING)
-
+    return (u'<title>%s</title>'%getboardname({'subaddr':subadr, 'bdname':board})).encode(futaba_encoding)
+# スレッドのページ
 @route('/<subadr>_<board>/dat/<datnum:int>.dat')
 def add_get(subadr,board,datnum):
     response.content_type = 'text/plain; charset="shift_jis"'
-    return makedat({'subaddr':subadr, 'bdname':board}, datnum).encode(FUTABA_ENCODING)
+    return makedat({'subaddr':subadr, 'bdname':board}, datnum).encode(futaba_encoding, 'ignore')
 
 ############################################################
 
@@ -139,77 +140,99 @@ def parseaddr(url,addr,thread=0):
 
 #まえしょり
 def getopener(addr):
-    data = { 'mode':'catset', 'cx':'10', 'cy':'10', 'cl':FUTABA_MOJISU }
+    data = { 'mode':'catset', 'cx':'100', 'cy':'100', 'cl':100 }
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
     res = opener.open(parseaddr(FUTABA_CATSET_URL, addr), urllib.urlencode(data))
     return opener
 
 #ふたばのカタログをgetしてsubject.txtに変換して返す
 def makesubject(addr):
-    global FUTABA_BOARDLST
+    global futaba_boards
     opener = getopener(addr)
     res = opener.open(parseaddr(FUTABA_CAT_URL,addr))
-    htm = res.read().decode(FUTABA_ENCODING)
+    htm = res.read().decode(futaba_encoding)
     threadlst = re.findall(FUTABA_CAT_TERM, htm)
     title = re.findall('<title>(.*)</title>', htm)[0]
-    FUTABA_BOARDLST[(addr['subaddr'],addr['bdname'])] = title
+    futaba_boards[(addr['subaddr'],addr['bdname'])] = title
     subject = ''
     for i in threadlst:
-        title = i[1].replace('<small>','').replace('</small>','').replace('</a>','').replace('<br>','')
+        title = n[1].replace('<small>','').replace('</small>','').replace('</a>','').replace('<br>','')
         title = re.sub("<img src='.*' border=0 width=.* height=.* alt=\"\">", '', title)
-        #print(i[0])
-        subject += '%s.dat<>%s (%s)\r\n'%(i[0][4:-4], title, i[2])
+        #print(n[0])
+        subject += '%s.dat<>%s (%s)\r\n'%(n[0][4:-4], title, n[2])
     return subject
 
-#名前<>メール欄<>日付、ID<>本文<>スレタイトル(1行目のみ存在する)\n
 #ふたばのスレをdatに変換
-def makedat(addr, thread):
-	res = ''
-	try:
-		res = urllib2.urlopen(parseaddr(FUTABA_THREAD_URL, addr, thread))
-	except urllib2.HTTPError, e:
-		if(e.code==404):
-			response.status = 404
-			return u'ファイルが見つからないようです'
-		else:
-			response.status = e.code
-			return u'よくわからないけどエラーです'
-		
-	htm = res.read().decode(FUTABA_ENCODING,'ignore')
-	htm = re.sub('su[0-9]{7}\.(?:jpg|png|gif)',replace,htm)
-	dat = ''
+def makedat(addr, thread_num):
+    res = ''
+    # ファイルとってくる
+    try:
+        res = urllib2.urlopen(parseaddr(futaba_thread_url, addr, thread_num))
+    except urllib2.HTTPError, e:
+        if(e.code==404):
+            response.status = 404
+            return u'ファイルが見つからないようです'
+        else:
+            response.status = e.code
+            return u'よくわからないけどエラーです'
+    
+    htm = res.read().decode(futaba_encoding,'ignore')
 
-	master = re.findall(FUTABA_THREADMASTER_TERM, htm)[0]
-	body = (master[0]+'<br>'+master[6] if len(master[0]) != 0 else master[6]) +'<br><br>'+ parseaddr(FUTABA_THREAD_URL, addr, thread)
-	dat += '%s<>%s<>%s<>%s<>%s(%s)\r\n'%(master[1]+'_'+master[3], master[2], master[4], body, master[6], master[5])
-	
-	resp = re.findall(FUTABA_RESPONSE_TERM, htm)
-	for i in resp:
-		body = i[4]+'<br>'+i[5] if len(i[4]) != 0 else i[5]
-		dat += '%s<>%s<>%s<>%s<>\r\n'%(i[0]+'_'+i[2], i[1], i[3], body)
-	return dat
+    # 特定画像ロダの文字列をURLに置換する
+    htm = re.sub('su[0-9]{7}\.(?:jpg|png|gif)',replace,htm)
+    # htmlファイルから情報の抽出
+    thread = futabathread.get_thread(htm)
+
+    dat = ''
+    for i,n in enumerate(thread['response']):
+        
+        body = []
+        body.append(n['body'])
+        # 画像があれば
+        if(n["imgurl"]):
+            body.append((futaba_url % addr['subaddr'])+n['imgurl'])
+        # 一番最初のレスに掲示板へのURLを貼る
+        if(i==0):
+            body.append(parseaddr(futaba_thread_url, addr, thread_num))
+        body = "<br>".join(body)
+        
+        name = []
+        for m in [n['title'], n['name'], n['sod']]:
+            if(m):
+                name.append(m)
+        name = ' '.join(name)
+
+        if(i!=0):
+            dat += '%s<>%s<>%s<>%s<>\r\n'%(name,
+                                        n['mail'], 
+                                        n['time'], 
+                                        body)
+        else:
+            dat += '%s<>%s<>%s<>%s<>%s(%s)\r\n'%(name,
+                                        n['mail'], 
+                                        n['time'], 
+                                        body,
+                                        thread['title'],
+                                        thread['expire'])            
+    return dat
 
 #板の名前知ってたら返す
 def getboardname(addr):
-    if (addr['subaddr'],addr['bdname']) in FUTABA_BOARDLST:
-        return FUTABA_BOARDLST[(addr['subaddr'],addr['bdname'])]+'('+addr['subaddr']+'_'+addr['bdname']+')'.decode('utf-8')
+    if (addr['subaddr'],addr['bdname']) in futaba_boards:
+        return futaba_boards[(addr['subaddr'],addr['bdname'])]+'('+addr['subaddr']+'_'+addr['bdname']+')'.decode('utf-8')
     else:
         return 'UNNAMED'+'('+addr['subaddr']+'_'+addr['bdname']+')'.decode('utf-8')
 
 #su0000000.jpg系の画像ファイルをurlに置換
 #http://www.nijibox5.com/futabafiles/tubu/src/su1143113.jpg
 def replace(m):
-	strg = m.group(0)
-	return 'http://www.nijibox5.com/futabafiles/tubu/src/%s'%strg
+    strg = m.group(0)
+    return 'http://www.nijibox5.com/futabafiles/tubu/src/%s'%strg
 
 ############################################################
 
 def main():
-	#print(makesubject({'subaddr':'dec', 'bdname':'b'}))
-	#print(makedat({'subaddr':'dec', 'bdname':'b'}, 11630396))
-	test = re.sub('su[0-9]{7}\.(?:jpg|png|gif)', replace, 'su1143113.jpg')
-	print(test)
+    run(host="0.0.0.0", port=int(os.environ.get("PORT", 80)))
 
 if __name__ == '__main__':
-	#main()
-	run(host="0.0.0.0", port=int(os.environ.get("PORT", 80)))
+    main()
