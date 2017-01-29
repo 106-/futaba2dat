@@ -4,12 +4,11 @@
 from bs4 import BeautifulSoup
 import re
 import json
+import urllib2
 
 def main():
-    f = open("b.html", "r")
-    html = f.read()
-    f.close()
-    thread = get_thread(html)
+    res = urllib2.urlopen("http://may.2chan.net/b/res/461794640.htm").read().decode("cp932")
+    thread = get_thread(res)
     print(json.dumps(thread, indent=2))
 
 # スレッドを読みやすい形に変える
@@ -27,7 +26,7 @@ def get_thread(html):
     thread['expire'] = thre.find("small", text=re.compile(u"\d{2}:\d{2}頃消えます")).string
 
     # スレ立て人の本文をスレッドタイトルとする
-    thread['title'] = thre.find('blockquote').string
+    thread['title'] = thre.find('blockquote').get_text(separator='<br>',strip=True)
 
     # 返信を抽出
     for i in thre.find_all("table", border="0"):

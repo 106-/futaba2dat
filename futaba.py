@@ -9,6 +9,7 @@ import re
 import cookielib
 import os
 import futabathread
+import futababoard
 
 FUTABA_CAT_URL = 'http://%s.2chan.net/%s/futaba.php?mode=cat'
 FUTABA_CATSET_URL = 'http://%s.2chan.net/%s/futaba.php?mode=catset'
@@ -105,17 +106,17 @@ def add_get():
 @route('/<subadr>_<board>/subject.txt')
 def add_get(subadr,board):
     response.content_type = 'text/plain; charset="shift_jis"'
-    return makesubject({'subaddr':subadr, 'bdname':board}).encode(futaba_encoding)
+    return makesubject({'subaddr':subadr, 'bdname':board}).encode(futaba_encoding, 'ignore')
 # 各板の名前を返すページ
 @route('/<subadr>_<board>/SETTING.TXT')
 def add_get(subadr,board):
     response.content_type = 'text/plain; charset="shift_jis"'
-    return u'BBS_TITLE=%s'%(getboardname({'subaddr':subadr, 'bdname':board})).encode(futaba_encoding)
+    return u'BBS_TITLE=%s'%(getboardname({'subaddr':subadr, 'bdname':board})).encode(futaba_encoding, 'ignore')
 # トップページを開いたときのタイトルを各板の名前にしておく(2chmateで有効だった)
 @route('/<subadr>_<board>/')
 def add_get(subadr,board):
     response.content_type = 'text/plain; charset="shift_jis"'
-    return (u'<title>%s</title>'%getboardname({'subaddr':subadr, 'bdname':board})).encode(futaba_encoding)
+    return (u'<title>%s</title>'%getboardname({'subaddr':subadr, 'bdname':board})).encode(futaba_encoding, 'ignore')
 # スレッドのページ
 @route('/<subadr>_<board>/dat/<datnum:int>.dat')
 def add_get(subadr,board,datnum):
@@ -151,15 +152,14 @@ def makesubject(addr):
     opener = getopener(addr)
     res = opener.open(parseaddr(FUTABA_CAT_URL,addr))
     htm = res.read().decode(futaba_encoding)
-    threadlst = re.findall(FUTABA_CAT_TERM, htm)
-    title = re.findall('<title>(.*)</title>', htm)[0]
+
+    board = futababoard.get_board(htm)
+    title = board['board_title']
     futaba_boards[(addr['subaddr'],addr['bdname'])] = title
     subject = ''
-    for i in threadlst:
-        title = n[1].replace('<small>','').replace('</small>','').replace('</a>','').replace('<br>','')
-        title = re.sub("<img src='.*' border=0 width=.* height=.* alt=\"\">", '', title)
-        #print(n[0])
-        subject += '%s.dat<>%s (%s)\r\n'%(n[0][4:-4], title, n[2])
+    for i in board['thread']:
+        # (スレッド番号).dat<>(スレッドタイトル) ((レス数))
+        subject += '%s.dat<>%s (%s)\r\n'%(i['threadid'], i['title'], i['num'])
     return subject
 
 #ふたばのスレをdatに変換
