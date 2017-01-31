@@ -7,6 +7,7 @@ COPY ./uwsgi.ini ./
 COPY ./futaba.py ./futaba.py
 
 RUN pip install bottle \
+    && pip install beautifulsoup4 \
     && rm main.py \
     && ln -s futaba.py main.py
 
