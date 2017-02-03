@@ -5,6 +5,8 @@ COPY ./adpt.wsgi ./
 COPY ./top.tpl ./
 COPY ./uwsgi.ini ./
 COPY ./futaba.py ./futaba.py
+COPY ./futabathread.py ./futabathread.py
+COPY ./futababoard.py ./futababoard.py
 
 RUN pip install bottle \
     && pip install beautifulsoup4 \
