@@ -70,8 +70,28 @@ def get_response(i):
         resp['imgurl'] = ""
     
     # 日付を抽出
-    date_re = re.compile(u'\d{2}/\d{2}/\d{2}\((?:日|月|火|水|木|金|土)\)\d{2}:\d{2}:\d{2} No\.\d*')
-    resp['time'] = date_re.findall(i.get_text())[0]
+    date_re = re.compile(u'\d{2}/\d{2}/\d{2}\((?:日|月|火|水|木|金|土)\)\d{2}:\d{2}:\d{2}')
+    time = date_re.findall(i.get_text())
+    if(time):
+        resp['time'] = time[0]
+    else:
+        resp['time'] = ''
+    
+    # No.の抽出
+    no_re = re.compile(u'No\.\d*')
+    no = no_re.findall(i.get_text())
+    if(no):
+        resp['no'] = no[0]
+    else:
+        resp['no'] = ''
+    
+    # IDの抽出
+    no_re = re.compile(u'ID:[^ ]*')
+    no = no_re.findall(i.get_text())
+    if(no):
+        resp['id'] = no[0]
+    else:
+        resp['id'] = '' 
 
     # そうだねの抽出
     sod = i.find("a", class_="sod")

@@ -202,15 +202,21 @@ def makedat(addr, thread_num):
                 name.append(m)
         name = ' '.join(name)
 
+        date = []
+        for m in [n['time'], n['no'], n['id']]:
+            if(m):
+                date.append(m)
+        date = ' '.join(date)
+
         if(i!=0):
             dat += '%s<>%s<>%s<>%s<>\r\n'%(name,
                                         n['mail'], 
-                                        n['time'], 
+                                        date, 
                                         body)
         else:
             dat += '%s<>%s<>%s<>%s<>%s(%s)\r\n'%(name,
                                         n['mail'], 
-                                        n['time'], 
+                                        date, 
                                         body,
                                         thread['title'],
                                         thread['expire'])            
