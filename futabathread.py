@@ -95,7 +95,7 @@ def get_response(i):
 
     # そうだねの抽出
     sod = i.find("a", class_="sod")
-    if(sod):
+    if(sod and sod.string!="+"):
         resp["sod"] = sod.string
     else:
         resp["sod"] = ""
