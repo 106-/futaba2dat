@@ -150,7 +150,7 @@ def makesubject(addr):
     global futaba_boards
     opener = getopener(addr)
     res = opener.open(parseaddr(FUTABA_CAT_URL,addr))
-    htm = res.read().decode(futaba_encoding)
+    htm = res.read().decode(futaba_encoding, 'ignore')
 
     board = futababoard.get_board(htm)
     title = board['board_title']
