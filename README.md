@@ -1,5 +1,6 @@
 # futaba2dat
-ふたば☆ちゃんねるを2ch専用ブラウザで読めるように変換するプログラム
+ふたば☆ちゃんねるを2ch専用ブラウザで読めるように変換するプログラム  
+現在[http://futaba.t106.net/](http://futaba.t106.net/)で試験的に動いています.
 
 ## 必要なもの
     # pip install bottle
