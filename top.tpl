@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>にゃあ</title>
+		<title>ふたば→dat変換ツール</title>
 	</head>
 	<body>
 		<h1>ふたば→dat変換ツール</h1><br>
