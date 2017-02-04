@@ -12,7 +12,7 @@ import futabathread
 import futababoard
 
 FUTABA_CAT_URL = 'http://%s.2chan.net/%s/futaba.php?mode=cat'
-FUTABA_CATSET_URL = 'http://%s.2chan.net/%s/futaba.php?mode=catset'
+futaba_catset_url = 'http://%s.2chan.net/%s/futaba.php?mode=catset'
 futaba_thread_url = 'http://%s.2chan.net/%s/res/%s.htm'
 futaba_url = 'http://%s.2chan.net'
 futaba_encoding = 'cp932'
@@ -93,7 +93,6 @@ futaba_boards = {('zip','1'): u'野球＠ふたば',
 ('jun','oe'): u'お絵sql＠ふたば',
 ('jun','junbi'): u'準備＠ふたば',
 }
-FUTABA_CAT_TERM = "<td><a href='(.*)' target='_blank'>(.*)<font size=2>(.*)</font></td>"
 
 ############################################################
 
@@ -143,7 +142,7 @@ def parseaddr(url,addr,thread=0):
 def getopener(addr):
     data = { 'mode':'catset', 'cx':'100', 'cy':'100', 'cl':100 }
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookielib.CookieJar()))
-    res = opener.open(parseaddr(FUTABA_CATSET_URL, addr), urllib.urlencode(data))
+    res = opener.open(parseaddr(futaba_catset_url, addr), urllib.urlencode(data))
     return opener
 
 #ふたばのカタログをgetしてsubject.txtに変換して返す
@@ -179,7 +178,7 @@ def makedat(addr, thread_num):
     htm = res.read().decode(futaba_encoding,'ignore')
 
     # 特定画像ロダの文字列をURLに置換する
-    htm = re.sub('su[0-9]{7}\.(?:jpg|png|gif)',replace,htm)
+    htm = re.sub('su[0-9]{7}\.(?:jpg|png|gif|webm)',replace,htm)
     # htmlファイルから情報の抽出
     thread = futabathread.get_thread(htm)
 
