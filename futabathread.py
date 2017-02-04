@@ -23,7 +23,7 @@ def get_thread(html):
     thread['response'].append(get_response(thre))
     
     # スレが消える時刻を取得
-    thread['expire'] = thre.find("small", text=re.compile(u"\d{2}:\d{2}頃消えます")).string
+    thread['expire'] = thre.find("small", text=re.compile(u"[^ ]*?頃消えます")).string
 
     # スレ立て人の本文をスレッドタイトルとする
     thread['title'] = thre.find('blockquote').get_text(separator='<br>',strip=True)
