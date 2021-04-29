@@ -12,9 +12,13 @@ Jinja2 = "^2.11.3"
 aiofiles = "^0.6.0"
 SQLAlchemy = "^1.4.11"
 beautifulsoup4 = "^4.9.3"
+pydantic = "^1.8.1"
+requests = "^2.25.1"
+sqlalchemy-stubs = "^0.4"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+black = {version = "^21.4b1", allow-prereleases = true}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
