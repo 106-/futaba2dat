@@ -21,19 +21,23 @@ class FutabaBoard:
         return requests.get(futaba_board_url, cookies=cookie).text
 
     def parse(self, text: str):
+        """
+        スレッド一覧のカタログから抽出するメソッド
+        テーブルでまとまっているので結構簡単
+        """
         bs = BeautifulSoup(text, "html.parser")
 
         threads = []
         for td in bs.find("table", id="cattable").find_all("td"):
-            id_match: Optional[Match[str]] = re.match(
-                r"res/(\d*)\.htm", td.a.get("href")
-            )
+            id_match: Match[str] = re.match(r"res/(\d*)\.htm", td.a.get("href"))
             id = id_match.group(1)
             if td.a.img:
                 imageurl = td.a.img.get("src")
             else:
                 imageurl = None
             title = td.small.get_text()
+
+            # "()" で括られてるので[1:-1]で省く
             count = int(td.find("font", size="2").get_text()[1:-1])
             threads.append(
                 {"id": id, "image_url": imageurl, "title": title, "count": count}
@@ -42,8 +46,8 @@ class FutabaBoard:
 
 
 class FutabaThread:
-    def get_and_parse(self, sub_domain: str, board_dir: str, thread_id: str):
-        html = self.get(sub_domain, board_dir, thread_id)
+    def get_and_parse(self, sub_domain: str, board_dir: str, thread_id: int):
+        html = self.get(sub_domain, board_dir, str(thread_id))
         return self.parse(html)
 
     def get(self, sub_domain: str, board_dir: str, thread_id: str):
