@@ -1,0 +1,3 @@
+{% for post in thread["posts"] -%}
+{{ post["title"] }} {{ post["name"] }}<>{% if post["mail"] %}{{ post["mail"] }}{% endif %}<>{{ post["date"] }}{% if post["id"] %} ID:{{ post["id"] }}{% endif %}<>{% if post["image"] %}{{image_url_root}}{{post["image"]}}<br>{% endif %}{{ post["body"] | safe }}<>{% if loop.index == 1 %}{{thread["title"]}}{% endif %}
+{% endfor -%}
