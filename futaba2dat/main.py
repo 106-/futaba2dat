@@ -51,7 +51,7 @@ async def get(
 
 
 # chmateの場合, 板のhtml内に<title>が含まれていればそれを板の名前としている.
-# そのためこのアプリでも返しておく.
+# そのためこのアプリでも返しておく.
 @app.get("/{sub_domain}_{board_dir}/")
 async def board_top(request: Request, sub_domain: str, board_dir: str):
     generated_content = templates.TemplateResponse(

@@ -83,9 +83,12 @@ class FutabaThread:
         これは投稿者による投稿も含む
         """
         post = {}
-        get_span_text = lambda span_attr: post_bs.find(
-            "span", class_=span_attr
-        ).get_text(strip=True)
+        def get_span_text(span_attr):
+            tag = post_bs.find("span", class_=span_attr)
+            if tag:
+                return tag.get_text(strip=True)
+            else:
+                None
         gettext_strip = lambda x: x.get_text(strip=True)
 
         # `csb` は投稿の題名を持つタグに含まれる属性
@@ -100,12 +103,15 @@ class FutabaThread:
         # `cnm` は投稿者名を含むタグ. 投稿者はメールアドレスを指定している場合がある.
         # `<a>` タグを持っているかどうかで分岐させる.
         name = post_bs.find("span", class_="cnm")
-        if name.a:
+        if name and name.find("a"):
             # `mailto:` 形式なのでメールアドレスのみを抽出する.
             post["name"] = gettext_strip(name)
             post["mail"] = name.a.get("href").split(":")[1]
-        else:
+        elif name:
             post["name"] = gettext_strip(name)
+            post["mail"] = None
+        else:
+            post["name"] = None
             post["mail"] = None
 
         # `cnw` は投稿日時とIDを持つタグ. 2つはスペースで区切られている.
