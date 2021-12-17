@@ -101,5 +101,60 @@ def test_futaba_thread1() -> None:
             },
         ],
     }
+    assert thread == expected
+
+def test_futaba_thread2() -> None:
+    html = open("./tests/testcase_thread2.html", "r").read()
+    thread = FutabaThread().parse(html)
+    expected = {
+        "title": "本文1 本文2",
+        "expire": "1月1日頃消えます",
+        "posts": [
+            {
+                "title": None,
+                "image": "/9/src/0000000000000.jpg",
+                "name": None,
+                "mail": None,
+                "date": "21/01/01(金)00:00:00",
+                "id": "IP:0.0.*(sample.ne.jp)",
+                "no": "No.0000000",
+                "sod": "+",
+                "body": "本文1<br>本文2",
+            },
+            {
+                "title": None,
+                "image": "/9/src/0000000000001.jpg",
+                "name": None,
+                "mail": None,
+                "date": "21/01/01(金)00:00:00",
+                "id": "IP:0.0.*(sample.ne.jp)",
+                "no": "No.0000001",
+                "sod": "+",
+                "body": "画像あり本文",
+            },
+            {
+                "title": None,
+                "image": None,
+                "name": None,
+                "mail": None,
+                "date": "21/01/01(金)00:00:00",
+                "id": "IP:0.0.*(sample.ne.jp)",
+                "no": "No.0000002",
+                "sod": "+",
+                "body": "画像なし本文",
+            },
+            {
+                "title": None,
+                "image": "/9/src/0000000000003.jpg",
+                "name": None,
+                "mail": None,
+                "date": "21/01/01(金)00:00:00",
+                "id": "IP:0.0.*(sample.ne.jp)",
+                "no": "No.0000003",
+                "sod": "+",
+                "body": "画像あり本文3",
+            },
+        ],
+    }
     print(json.dumps(thread, indent=2))
     assert thread == expected
