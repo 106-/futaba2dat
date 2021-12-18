@@ -1,3 +1,11 @@
-{% for post in thread["posts"] -%}
-{{ post["title"] }} {{ post["name"] }}<>{% if post["mail"] %}{{ post["mail"] }}{% endif %}<>{{ post["date"] }}{% if post["id"] %} ID:{{ post["id"] }}{% endif %}<>{% if post["image"] %}{{image_url_root}}{{post["image"]}}<br>{% endif %}{{ post["body"] | safe }}<>{% if loop.index == 1 %}{{thread["title"]}}{% endif %}
-{% endfor -%}
+スレッド情報<><><>元スレッド: {{thread_uri}}<br>{{thread["expire"]}}<>{{thread["title"]}}
+{% for post in thread["posts"] %}
+    {%- if post["title"] %}{{- post["title"] }} {% endif %}
+    {%- if post["name"] %}{{ post["name"] }} {% endif %}
+    {%- if post["sod"] != "+" %}{{post["sod"]}}{% endif %}<>
+    {%- if post["mail"] %}{{ post["mail"] }}{% endif %}<>
+    {{-post["date"]}}
+    {%- if post["id"] %} ID:{{post["id"]}}{% endif %}<>
+    {%- if post["image"] %}{{image_url_root}}{{post["image"]}}<br>{% endif %}
+    {{- post["body"] | safe }}<>
+{% endfor %}
