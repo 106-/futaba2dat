@@ -1,9 +1,8 @@
 import re
-from typing import Match, Optional
+from typing import Match
 
 import requests
 from bs4 import BeautifulSoup
-from pydantic import BaseModel
 
 from futaba2dat.settings import Settings
 
@@ -83,13 +82,16 @@ class FutabaThread:
         これは投稿者による投稿も含む
         """
         post = {}
+
         def get_span_text(span_attr):
             tag = post_bs.find("span", class_=span_attr)
             if tag:
                 return tag.get_text(strip=True)
             else:
                 None
-        gettext_strip = lambda x: x.get_text(strip=True)
+
+        def gettext_strip(x):
+            return x.get_text(strip=True)
 
         # `csb` は投稿の題名を持つタグに含まれる属性
         post["title"] = get_span_text("csb")

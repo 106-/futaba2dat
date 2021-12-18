@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 
 import sqlalchemy as sa
 from fastapi import Depends, FastAPI, Request
@@ -24,6 +23,7 @@ boards = json.load(open("./futaba2dat/boards.json", "r"))
 boards_hash = {}
 for i in boards:
     boards_hash[(i[0], i[1])] = i[2]
+
 
 # FastAPIのDI用のメソッド
 # cf. https://fastapi.tiangolo.com/tutorial/dependencies/
@@ -66,6 +66,7 @@ async def board_top(request: Request, sub_domain: str, board_dir: str):
     generated_content.headers["content-type"] = "text/html"
     generated_content = convert_to_shiftjis(generated_content)
     return generated_content
+
 
 # 板の名前が含まれているファイル. これが無いとChmateはエラーを起こす.
 @app.get("/{sub_domain}_{board_dir}/SETTING.TXT")
@@ -119,7 +120,12 @@ async def thread(
     image_url_root = Settings().futaba_image_url_root.format(sub_domain, board_dir)
     generated_content = templates.TemplateResponse(
         "thread.j2",
-        {"request": request, "thread": thread, "image_url_root": image_url_root, "thread_uri":thread_uri},
+        {
+            "request": request,
+            "thread": thread,
+            "image_url_root": image_url_root,
+            "thread_uri": thread_uri,
+        },
     )
     generated_content.headers["content-type"] = "text/plain"
     generated_content = convert_to_shiftjis(generated_content)
