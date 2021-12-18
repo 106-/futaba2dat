@@ -1,0 +1,16 @@
+
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+<TITLE>futaba2dat</TITLE>
+<BASE TARGET="cont">
+</HEAD>
+<BODY TEXT="#CC3300" BGCOLOR="#FFFFFF" link="#0000FF" alink="#ff0000" vlink="#660099">
+<font size=2>
+<br><br><B>futaba2dat</B><br>
+{% for board in boards -%}
+<A HREF={{ url_for("board_top", sub_domain=board[0], board_dir=board[1]) }}>{{board[2]}}({{board[0]}}_{{board[1]}})</A>{% if loop.index != boards | length %}<br>{% endif %}
+{% endfor -%}
+</FONT>
+</BODY>
+</HTML>
