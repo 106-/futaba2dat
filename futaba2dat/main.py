@@ -106,6 +106,7 @@ async def thread(
     engine: sa.engine.Connectable = Depends(get_engine),
 ):
     thread = FutabaThread().get_and_parse(sub_domain, board_dir, id)
+    thread_uri = f"https://{sub_domain}.2chan.net/{board_dir}/res/{id}.htm"
     link_to_thread = settings.futaba_thread_url.format(sub_domain, board_dir, id)
     board_name = "{0}({1}_{2})".format(
         boards_hash[(sub_domain, board_dir)], sub_domain, board_dir
@@ -118,7 +119,7 @@ async def thread(
     image_url_root = Settings().futaba_image_url_root.format(sub_domain, board_dir)
     generated_content = templates.TemplateResponse(
         "thread.j2",
-        {"request": request, "thread": thread, "image_url_root": image_url_root},
+        {"request": request, "thread": thread, "image_url_root": image_url_root, "thread_uri":thread_uri},
     )
     generated_content.headers["content-type"] = "text/plain"
     generated_content = convert_to_shiftjis(generated_content)
