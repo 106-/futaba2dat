@@ -1,6 +1,5 @@
 import json
 
-from futaba2dat import futaba
 from futaba2dat.futaba import FutabaBoard, FutabaThread
 
 
@@ -102,6 +101,7 @@ def test_futaba_thread1() -> None:
         ],
     }
     assert thread == expected
+
 
 def test_futaba_thread2() -> None:
     html = open("./tests/testcase_thread2.html", "r").read()
