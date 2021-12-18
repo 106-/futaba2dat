@@ -52,7 +52,7 @@ async def get(
 
 # chmateの場合, 板のhtml内に<title>が含まれていればそれを板の名前としている.
 # そのためこのアプリでも返しておく.
-@app.get("/{sub_domain}_{board_dir}/")
+@app.get("/{sub_domain}/{board_dir}/")
 async def board_top(request: Request, sub_domain: str, board_dir: str):
     generated_content = templates.TemplateResponse(
         "board.j2",
@@ -69,7 +69,7 @@ async def board_top(request: Request, sub_domain: str, board_dir: str):
 
 
 # 板の名前が含まれているファイル. これが無いとChmateはエラーを起こす.
-@app.get("/{sub_domain}_{board_dir}/SETTING.TXT")
+@app.get("/{sub_domain}/{board_dir}/SETTING.TXT")
 async def setting_txt(request: Request, sub_domain: str, board_dir: str):
     generated_content = templates.TemplateResponse(
         "setting.j2",
@@ -86,7 +86,7 @@ async def setting_txt(request: Request, sub_domain: str, board_dir: str):
 
 
 # スレッド一覧を表すファイル.
-@app.get("/{sub_domain}_{board_dir}/subject.txt")
+@app.get("/{sub_domain}/{board_dir}/subject.txt")
 async def subject(request: Request, sub_domain: str, board_dir: str):
     threads = FutabaBoard().get_and_parse(sub_domain, board_dir)
     generated_content = templates.TemplateResponse(
@@ -98,7 +98,7 @@ async def subject(request: Request, sub_domain: str, board_dir: str):
 
 
 # DAT形式のスレッドを返すアドレス.
-@app.get("/{sub_domain}_{board_dir}/dat/{id}.dat")
+@app.get("/{sub_domain}/{board_dir}/dat/{id}.dat")
 async def thread(
     request: Request,
     sub_domain: str,
@@ -129,4 +129,14 @@ async def thread(
     )
     generated_content.headers["content-type"] = "text/plain"
     generated_content = convert_to_shiftjis(generated_content)
+    return generated_content
+
+
+# BBSMENUを返すページ
+@app.get("/bbsmenu.html")
+async def bbsmenu(request: Request):
+    generated_content = templates.TemplateResponse(
+        "bbsmenu.j2",
+        {"request": request, "boards": boards},
+    )
     return generated_content
