@@ -9,7 +9,7 @@
 <font size=2>
 <br><br><B>futaba2dat</B><br>
 {% for board in boards -%}
-<A HREF={{ url_for("board_top", sub_domain=board[0], board_dir=board[1]) }}>{{board[2]}}({{board[0]}}_{{board[1]}})</A>{% if loop.index != boards | length %}<br>{% endif %}
+<A HREF={{ url_for("board_top", sub_domain=board[0], board_dir=board[1]) }}>{{board[2]}}</A>{% if loop.index != boards | length %}<br>{% endif %}
 {% endfor -%}
 </FONT>
 </BODY>

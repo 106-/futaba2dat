@@ -2,6 +2,7 @@
 {% for post in thread["posts"] %}
     {%- if post["title"] %}{{- post["title"] }} {% endif %}
     {%- if post["name"] %}{{ post["name"] }} {% endif %}
+    {%- if post["no"] %}{{ post["no"] }} {% endif %}
     {%- if post["sod"] != "+" %}{{post["sod"]}}{% endif %}<>
     {%- if post["mail"] %}{{ post["mail"] }}{% endif %}<>
     {{-post["date"]}}
