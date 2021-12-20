@@ -1,4 +1,5 @@
 import json
+from typing import Optional
 
 import sqlalchemy as sa
 from fastapi import Depends, FastAPI, Request
@@ -107,7 +108,7 @@ async def thread(
     engine: sa.engine.Connectable = Depends(get_engine),
 ):
     thread = FutabaThread().get_and_parse(sub_domain, board_dir, id)
-    thread_uri = f"https://{sub_domain}.2chan.net/{board_dir}/res/{id}.htm"
+    thread_uri = settings.futaba_thread_url.format(sub_domain, board_dir, id)
     link_to_thread = settings.futaba_thread_url.format(sub_domain, board_dir, id)
     board_name = "{0}({1}_{2})".format(
         boards_hash[(sub_domain, board_dir)], sub_domain, board_dir
@@ -134,9 +135,17 @@ async def thread(
 
 # BBSMENUを返すページ
 @app.get("/bbsmenu.html")
-async def bbsmenu(request: Request):
+async def bbsmenu(
+    request: Request,
+    category: Optional[str] = None,
+):
+    if category == "ura":
+        mod_boards = list(filter(lambda x: "二次元裏" in x[2], boards))
+    else:
+        mod_boards = boards
+
     generated_content = templates.TemplateResponse(
         "bbsmenu.j2",
-        {"request": request, "boards": boards},
+        {"request": request, "boards": mod_boards},
     )
     return generated_content

@@ -4,6 +4,7 @@
 	build\
 	lint\
 	format\
+	reload-boards\
 
 run:
 	poetry run uvicorn futaba2dat.main:app --host 0.0.0.0 --port 80 \
@@ -21,3 +22,6 @@ lint:
 format:
 	poetry run isort ./futaba2dat ./tests
 	poetry run black ./futaba2dat ./tests
+
+reload-boards:
+	poetry run python -m tools.make_boards
