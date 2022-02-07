@@ -4,6 +4,7 @@ from typing import Optional
 import sqlalchemy as sa
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from futaba2dat import db
@@ -12,6 +13,8 @@ from futaba2dat.futaba import FutabaBoard, FutabaThread
 from futaba2dat.settings import Settings
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # SQLAlchemyの初期設定
 # cf. https://docs.sqlalchemy.org/en/14/core/engines.html
