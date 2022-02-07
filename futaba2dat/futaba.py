@@ -28,7 +28,7 @@ class FutabaBoard:
 
         threads = []
         for td in bs.find("table", id="cattable").find_all("td"):
-            id_match: Match[str] = re.match(r"res/(\d*)\.htm", td.a.get("href"))
+            id_match: Match[str] = re.match(r"res/(\d+?)\.htm", td.a.get("href"))
             id = id_match.group(1)
             if td.a.img:
                 imageurl = td.a.img.get("src")
