@@ -2,7 +2,7 @@ import json
 from typing import Optional
 
 import sqlalchemy as sa
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 
@@ -107,7 +107,12 @@ async def thread(
     id: int,
     engine: sa.engine.Connectable = Depends(get_engine),
 ):
-    thread = FutabaThread().get_and_parse(sub_domain, board_dir, id)
+    response = FutabaThread().get(sub_domain, board_dir, id)
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code)
+    else:
+        thread = FutabaThread().parse(response.text)
+
     thread_uri = settings.futaba_thread_url.format(sub_domain, board_dir, id)
     link_to_thread = settings.futaba_thread_url.format(sub_domain, board_dir, id)
     board_name = "{0}({1}_{2})".format(

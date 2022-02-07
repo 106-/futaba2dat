@@ -28,7 +28,7 @@ class FutabaBoard:
 
         threads = []
         for td in bs.find("table", id="cattable").find_all("td"):
-            id_match: Match[str] = re.match(r"res/(\d*)\.htm", td.a.get("href"))
+            id_match: Match[str] = re.match(r"res/(\d+?)\.htm", td.a.get("href"))
             id = id_match.group(1)
             if td.a.img:
                 imageurl = td.a.img.get("src")
@@ -45,16 +45,12 @@ class FutabaBoard:
 
 
 class FutabaThread:
-    def get_and_parse(self, sub_domain: str, board_dir: str, thread_id: int):
-        html = self.get(sub_domain, board_dir, str(thread_id))
-        return self.parse(html)
-
     def get(self, sub_domain: str, board_dir: str, thread_id: str):
         # ふたば掲示板のスレッド一覧を取得しパースする
         setting = Settings()
         return requests.get(
             setting.futaba_thread_url.format(sub_domain, board_dir, thread_id)
-        ).text
+        )
 
     def parse(self, text: str):
         bs = BeautifulSoup(text, "html.parser")
