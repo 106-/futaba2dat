@@ -1,0 +1,14 @@
+body {
+    background-color: #585858;
+}
+
+#main-area {
+    border-radius: 10px;
+    background-color: white;
+  }
+
+.container-fluid {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 900px;
+}
