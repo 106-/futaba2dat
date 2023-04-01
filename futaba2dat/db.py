@@ -2,6 +2,7 @@ from typing import Optional
 
 import sqlalchemy as sa
 from pydantic import BaseModel
+import datetime
 
 
 class History(BaseModel):
@@ -11,6 +12,8 @@ class History(BaseModel):
     title: str
     link: str
     board: str
+    host: str
+    created_at: str
 
 
 # SQLAlchemyの機能を使ってDBのテーブル定義をします
@@ -20,9 +23,15 @@ history_table = sa.Table(
     "histories",
     metadata,
     sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
-    sa.Column("title", sa.String(256), nullable=False),
+    sa.Column("title", sa.String(1024), nullable=False),
     sa.Column("link", sa.String(256), nullable=False),
     sa.Column("board", sa.String(256), nullable=False),
+    sa.Column("host", sa.String(256), nullable=False),
+    sa.Column(
+        "created_at",
+        sa.String(256),
+        nullable=False,
+    ),
 )
 
 
@@ -33,7 +42,7 @@ def create_table(engine: sa.engine.Connectable) -> None:
 
 # SQLの実行はSQLAlchemy Core APIを使っています
 # cf. https://docs.sqlalchemy.org/en/14/core/tutorial.html
-def find_all(engine: sa.engine.Connectable) -> list[History]:
+def get_recent(engine: sa.engine.Connectable) -> list[History]:
     """すべてのメッセージを取得する"""
     with engine.connect() as connection:
         query = sa.sql.select(
@@ -42,8 +51,10 @@ def find_all(engine: sa.engine.Connectable) -> list[History]:
                 history_table.c.title,
                 history_table.c.link,
                 history_table.c.board,
+                history_table.c.host,
+                history_table.c.created_at,
             )
-        )
+        ).limit(50)
         return [History(**m) for m in connection.execute(query)]
 
 

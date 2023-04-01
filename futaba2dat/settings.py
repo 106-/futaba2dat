@@ -10,4 +10,4 @@ class Settings(BaseSettings):
     futaba_bbsmenu_url: str = "https://www.2chan.net/bbsmenu.html"
     futaba_board_uri_pattern: str = r"\/\/(.*?)\.2chan\.net/(.*?)/(futaba|.*enter).htm"
 
-    database_url: str = "sqlite:///futaba2dat_history.db"
+    database_url: str = "sqlite:///log.sqlite"

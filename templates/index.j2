@@ -34,25 +34,6 @@
         <ul>
           <li><a href="https://github.com/106-/futaba2dat">106-/futaba2dat</a></li>
         </ul>
-        {#
-        <h4>↓ 閲覧履歴</h4>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>板名</th>
-              <th>スレッド</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for history in histories|reverse %}
-            <tr>
-              <td>{{history.board}}</td>
-              <td><a href="{{ history.link }}"> {{history.title}} </a></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        #}
       </div>
     </div>
   </div>

@@ -1,3 +1,4 @@
+import datetime
 import json
 from typing import Optional
 
@@ -49,9 +50,18 @@ def convert_to_shiftjis(generated_content):
 async def get(
     request: Request, engine: sa.engine.Connectable = Depends(get_engine)
 ) -> Response:
-    histories = db.find_all(engine)
-    context = {"request": request, "histories": histories}
+    context = {"request": request}
     return templates.TemplateResponse("index.j2", context)
+
+
+# 閲覧履歴
+@app.get("/log", response_class=HTMLResponse)
+async def log(
+    request: Request, engine: sa.engine.Connectable = Depends(get_engine)
+) -> Response:
+    histories = db.get_recent(engine)
+    context = {"request": request, "histories": histories}
+    return templates.TemplateResponse("log.j2", context)
 
 
 # chmateの場合, 板のhtml内に<title>が含まれていればそれを板の名前としている.
@@ -123,7 +133,14 @@ async def thread(
     )
 
     db.add(
-        engine, History(link=link_to_thread, title=thread["title"], board=board_name)
+        engine,
+        History(
+            link=link_to_thread,
+            title=thread["title"],
+            board=board_name,
+            host=request.client.host,
+            created_at=datetime.datetime.now().isoformat(),
+        ),
     )
 
     image_url_root = Settings().futaba_image_url_root.format(sub_domain, board_dir)

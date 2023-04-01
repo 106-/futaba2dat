@@ -7,8 +7,28 @@
 	reload-boards\
 
 run:
-	poetry run uvicorn futaba2dat.main:app --host 0.0.0.0 --port 80 \
-		--reload --reload-dir futaba2dat --reload-dir static --reload-dir templates
+	poetry run uvicorn futaba2dat.main:app \
+		--host 0.0.0.0 \
+		--port 8001 \
+		--reload \
+		--reload-dir futaba2dat \
+		--reload-dir static \
+		--reload-dir templates
+
+docker-run:
+	docker run -d \
+		--restart always \
+		--name futaba2dat \
+		-p 8001:80 \
+		futaba2dat
+
+docker-shell:
+	docker exec -it futaba2dat bash
+
+clean:
+	docker stop futaba2dat
+	docker rm futaba2dat
+	docker rmi futaba2dat
 
 test:
 	poetry run pytest
