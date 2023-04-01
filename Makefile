@@ -19,6 +19,7 @@ docker-run:
 	docker run -d \
 		--restart always \
 		--name futaba2dat \
+		--env 'TZ=Asia/Tokyo' \
 		-p 8001:80 \
 		futaba2dat
 
