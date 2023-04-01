@@ -16,4 +16,4 @@ COPY ./futaba2dat /app/futaba2dat
 COPY ./static /app/static
 COPY ./templates /app/templates
 EXPOSE 80
-CMD ["/usr/local/bin/uvicorn", "futaba2dat.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["/usr/local/bin/uvicorn", "futaba2dat.main:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips", "*"]
