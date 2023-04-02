@@ -23,7 +23,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for history in histories|reverse %}
+            {% for history in histories %}
             <tr>
               <td>{{history.board}}</td>
               <td><a href="{{ history.link }}"> {{history.title}} </a></td>

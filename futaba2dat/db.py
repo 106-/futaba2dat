@@ -45,16 +45,20 @@ def create_table(engine: sa.engine.Connectable) -> None:
 def get_recent(engine: sa.engine.Connectable) -> list[History]:
     """すべてのメッセージを取得する"""
     with engine.connect() as connection:
-        query = sa.sql.select(
-            (
-                history_table.c.id,
-                history_table.c.title,
-                history_table.c.link,
-                history_table.c.board,
-                history_table.c.host,
-                history_table.c.created_at,
+        query = (
+            sa.sql.select(
+                (
+                    history_table.c.id,
+                    history_table.c.title,
+                    history_table.c.link,
+                    history_table.c.board,
+                    history_table.c.host,
+                    history_table.c.created_at,
+                )
             )
-        ).limit(50)
+            .order_by(history_table.c.created_at.desc())
+            .limit(50)
+        )
         return [History(**m) for m in connection.execute(query)]
 
 
