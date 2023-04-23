@@ -24,7 +24,7 @@ if settings.instance_connection_name is None:
     query = None
 else:
     query = {
-        "unix_sock": f"{settings.db_socket_dir}/{settings.instance_connection_name}"
+        "unix_sock": f"{settings.db_socket_dir}/{settings.instance_connection_name}/.s.PGSQL.5432"
     }
 db_engine = sa.create_engine(
     sa.engine.url.URL.create(
