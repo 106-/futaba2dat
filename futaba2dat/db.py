@@ -25,8 +25,9 @@ history_table = sa.Table(
     sa.Column(
         "id",
         sa.Integer,
-        sa.Sequence("history_id_seq", start=1),
+        sa.Identity(start=1, cycle=True),
         primary_key=True,
+        autoincrement=True,
     ),
     sa.Column("title", sa.String(1024), nullable=False),
     sa.Column("link", sa.String(256), nullable=False),
@@ -71,7 +72,7 @@ def add(engine: sa.engine.Connectable, history: History) -> None:
     """メッセージを保存する"""
     with engine.connect() as connection:
         query = history_table.insert()
-        connection.execute(query, history.dict())
+        connection.execute(query, history.dict(exclude_unset=True))
 
 
 def delete_all(engine: sa.engine.Connectable) -> None:

@@ -14,5 +14,7 @@ class Settings(BaseSettings):
     db_name: str = "log.sqlite"
     db_user: str = None
     db_pass: str = None
+    db_host: str = None
+    db_port: str = None
     db_socket_dir: str = "/cloudsql"
     instance_connection_name: str = None
