@@ -24,7 +24,7 @@ if settings.instance_connection_name is None:
     query = None
 else:
     query = {
-        "unix_socket": f"{settings.db_socket_dir}/{settings.instance_connection_name}"
+        "unix_sock": f"{settings.db_socket_dir}/{settings.instance_connection_name}"
     }
 db_engine = sa.create_engine(
     sa.engine.url.URL.create(
