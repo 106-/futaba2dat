@@ -32,6 +32,8 @@ db_engine = sa.create_engine(
         username=settings.db_user,
         password=settings.db_pass,
         database=settings.db_name,
+        host=settings.db_host,
+        port=settings.db_port,
         query=query,
     ),
     echo=True,
