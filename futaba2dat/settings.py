@@ -11,3 +11,10 @@ class Settings(BaseSettings):
     futaba_board_uri_pattern: str = r"\/\/(.*?)\.2chan\.net/(.*?)/(futaba|.*enter).htm"
 
     database_url: str = "sqlite:///log.sqlite"
+
+    db_drivername: str = "sqlite"
+    db_name: str = "log.sqlite"
+    db_user: str = None
+    db_pass: str = None
+    db_socket_dir: str = "/cloudsql"
+    instance_connection_name: str = None

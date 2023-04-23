@@ -20,6 +20,22 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # SQLAlchemyの初期設定
 # cf. https://docs.sqlalchemy.org/en/14/core/engines.html
 settings = Settings()
+if settings.instance_connection_name is None:
+    query = None
+else:
+    query = {
+        "unix_socket": f"{settings.db_socket_dir}/{settings.instance_connection_name}"
+    }
+db_engine = sa.create_engine(
+    sa.engine.url.URL.create(
+        drivername=settings.db_drivername,
+        username=settings.db_user,
+        password=settings.db_pass,
+        database=settings.db_name,
+        query=query,
+    ),
+    echo=True,
+)
 db_engine = sa.create_engine(settings.database_url, echo=True)
 db.create_table(db_engine)
 
