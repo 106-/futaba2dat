@@ -6,6 +6,8 @@
 	format\
 	reload-boards\
 
+TAG=$(shell git rev-parse --short HEAD)
+
 run:
 	poetry run uvicorn futaba2dat.main:app \
 		--host 0.0.0.0 \
@@ -35,7 +37,7 @@ test:
 	poetry run pytest
 
 build:
-	docker build -t futaba2dat .
+	docker build -t futaba2dat:$(TAG) .
 
 lint:
 	poetry run flake8 ./futaba2dat ./tests
