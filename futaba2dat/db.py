@@ -22,7 +22,7 @@ metadata = sa.MetaData()
 history_table = sa.Table(
     "histories",
     metadata,
-    sa.Column("id", sa.Integer, primary_key=True, autoincrement=True),
+    sa.Column("id", sa.Integer, sa.Identity(start=1, cycle=True), primary_key=True),
     sa.Column("title", sa.String(1024), nullable=False),
     sa.Column("link", sa.String(256), nullable=False),
     sa.Column("board", sa.String(256), nullable=False),
