@@ -36,7 +36,6 @@ db_engine = sa.create_engine(
     ),
     echo=True,
 )
-db_engine = sa.create_engine(settings.database_url, echo=True)
 db.create_table(db_engine)
 
 templates = Jinja2Templates(directory="templates")
