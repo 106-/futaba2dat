@@ -25,9 +25,8 @@ history_table = sa.Table(
     sa.Column(
         "id",
         sa.Integer,
-        sa.Identity(start=1, cycle=True),
+        sa.Sequence("history_id_seq", start=1),
         primary_key=True,
-        autoincrement=True,
     ),
     sa.Column("title", sa.String(1024), nullable=False),
     sa.Column("link", sa.String(256), nullable=False),
