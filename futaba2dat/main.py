@@ -149,13 +149,19 @@ async def thread(
         boards_hash[(sub_domain, board_dir)], sub_domain, board_dir
     )
 
+    host = request.headers.get("x-forwarded-for", None)
+    if host:
+        host = host.split(",")[0]
+    else:
+        host = request.client.host
+
     db.add(
         engine,
         History(
             link=link_to_thread,
             title=thread["title"],
             board=board_name,
-            host=request.client.host,
+            host=host,
             created_at=datetime.datetime.now().isoformat(),
         ),
     )
