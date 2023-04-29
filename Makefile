@@ -2,6 +2,7 @@
 	run\
 	test\
 	build\
+	build-gcp\
 	lint\
 	format\
 	reload-boards\
@@ -38,6 +39,10 @@ test:
 
 build:
 	docker build -t futaba2dat:$(TAG) .
+
+build-gcp:
+	docker build -t gcr.io/$(GOOGLE_CLOUD_PROJECT)/futaba2dat:$(TAG) .
+	docker push gcr.io/$(GOOGLE_CLOUD_PROJECT)/futaba2dat:$(TAG)
 
 lint:
 	poetry run flake8 ./futaba2dat ./tests
