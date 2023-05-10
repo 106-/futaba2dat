@@ -13,6 +13,12 @@ format = re.compile(Settings().futaba_board_uri_pattern)
 boards = []
 for b in bs.find_all(href=format):
     groups = format.match(b.get("href")).groups()
-    boards.append([groups[0], groups[1], b.get_text()])
+    name = b.get_text()
+    if "二次元裏" in name:
+        name = f"{name}({groups[0]})"
+    boards.append([groups[0], groups[1], name])
+
+hidden_boards = [["img", "b", "二次元裏(img)"], ["dat", "b", "二次元裏(dat)"]]
+boards.extend(hidden_boards)
 
 json.dump(boards, open("./futaba2dat/boards.json", "w+"), indent=2, ensure_ascii=False)
