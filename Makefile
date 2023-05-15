@@ -23,8 +23,10 @@ docker-run:
 		--restart always \
 		--name futaba2dat \
 		--env 'TZ=Asia/Tokyo' \
+		--env 'DB_NAME=/app/db/log.sqlite' \
 		-p 8001:80 \
-		futaba2dat
+		-v ./db:/app/db \
+		futaba2dat:$(TAG)
 
 docker-shell:
 	docker exec -it futaba2dat bash
