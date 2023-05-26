@@ -12,6 +12,7 @@ from futaba2dat import db
 from futaba2dat.db import History
 from futaba2dat.futaba import FutabaBoard, FutabaThread
 from futaba2dat.settings import Settings
+from futaba2dat.transform import futaba_uploader
 
 app = FastAPI()
 
@@ -142,6 +143,7 @@ async def thread(
         raise HTTPException(status_code=response.status_code)
     else:
         thread = FutabaThread().parse(response.text)
+        thread = futaba_uploader(thread)
 
     thread_uri = settings.futaba_thread_url.format(sub_domain, board_dir, id)
     link_to_thread = settings.futaba_thread_url.format(sub_domain, board_dir, id)

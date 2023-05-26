@@ -24,7 +24,7 @@ docker-run:
 		--name futaba2dat \
 		--env 'TZ=Asia/Tokyo' \
 		--env 'DB_NAME=/app/db/log.sqlite' \
-		-p 8001:80 \
+		-p 8000:80 \
 		-v ./db:/app/db \
 		futaba2dat:$(TAG)
 
