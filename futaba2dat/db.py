@@ -2,7 +2,6 @@ from typing import Optional
 
 import sqlalchemy as sa
 from pydantic import BaseModel
-import datetime
 
 
 class History(BaseModel):
