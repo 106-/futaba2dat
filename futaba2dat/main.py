@@ -121,6 +121,11 @@ async def setting_txt(request: Request, sub_domain: str, board_dir: str):
 @app.get("/{sub_domain}/{board_dir}/subject.txt")
 async def subject(request: Request, sub_domain: str, board_dir: str):
     threads = FutabaBoard().get_and_parse(sub_domain, board_dir)
+
+    # mayならば書き込み0件のスレを省く(スクリプト対策)
+    if sub_domain == "may" and board_dir == "b":
+        threads = list(filter(lambda x: x["count"] != 0, threads))
+    
     generated_content = templates.TemplateResponse(
         "subject.j2", {"request": request, "threads": threads}
     )
