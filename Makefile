@@ -16,7 +16,9 @@ run:
 		--reload \
 		--reload-dir futaba2dat \
 		--reload-dir static \
-		--reload-dir templates
+		--reload-dir templates \
+		--proxy-headers \
+		--forwarded-allow-ips "*"
 
 docker-run:
 	docker run -d \

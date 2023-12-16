@@ -6,9 +6,9 @@ authors = ["Tomu Katsumata <katsumata-to@kadokawa.jp>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
-fastapi = "^0.63.0"
+fastapi = "0.105.0"
 uvicorn = {extras = ["standard"], version = "^0.13.4"}
-Jinja2 = "^2.11.3"
+Jinja2 = "3.1.2"
 aiofiles = "^0.6.0"
 SQLAlchemy = "^1.4.11"
 beautifulsoup4 = "^4.9.3"
