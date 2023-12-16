@@ -125,7 +125,7 @@ async def subject(request: Request, sub_domain: str, board_dir: str):
     # mayならば書き込み0件のスレを省く(スクリプト対策)
     if sub_domain == "may" and board_dir == "b":
         threads = list(filter(lambda x: x["count"] != 0, threads))
-    
+
     generated_content = templates.TemplateResponse(
         "subject.j2", {"request": request, "threads": threads}
     )
