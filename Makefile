@@ -49,11 +49,11 @@ build-gcp:
 	docker push gcr.io/$(GOOGLE_CLOUD_PROJECT)/futaba2dat:$(TAG)
 
 lint:
-	poetry run flake8 ./futaba2dat ./tests
+	poetry run ruff check ./futaba2dat ./tests
 
 format:
-	poetry run isort ./futaba2dat ./tests
-	poetry run black ./futaba2dat ./tests
+	poetry run ruff check --fix ./futaba2dat ./tests
+	poetry run ruff format ./futaba2dat ./tests
 
 reload-boards:
 	poetry run python -m tools.make_boards

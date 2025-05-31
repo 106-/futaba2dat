@@ -29,6 +29,9 @@ class FutabaBoard:
         threads = []
         for td in bs.find("table", id="cattable").find_all("td"):
             id_match: Match[str] = re.match(r"res/(\d+?)\.htm", td.a.get("href"))
+            if not id_match:
+                # スレッドIDが見つからない場合はスキップ
+                continue
             id = id_match.group(1)
             if td.a.img:
                 imageurl = td.a.img.get("src")
@@ -56,9 +59,10 @@ class FutabaThread:
         bs = BeautifulSoup(text, "html.parser")
         thread_bs = bs.find("div", class_="thre")
         thread = {"posts": []}
+        thread_res_dict = {}
 
         # スレッドを立てた人の投稿を抽出
-        thread["posts"].append(self._parse_post(thread_bs))
+        thread["posts"].append(self._parse_post(1, thread_bs, thread_res_dict))
 
         # スレッドタイトルをスレを立てた人のものにする
         # これは `<br>` タグを含んでいるのでそれを空白文字にしておく必要がある.
@@ -67,12 +71,12 @@ class FutabaThread:
         # スレッドが消える時刻を抽出する 例:"00:00頃消えます"
         thread["expire"] = bs.find("span", class_="cntd").get_text(strip=True)
 
-        for i in bs.find_all("table", border=0):
-            thread["posts"].append(self._parse_post(i))
+        for i, post in enumerate(bs.find_all("table", border=0), start=2):
+            thread["posts"].append(self._parse_post(i, post, thread_res_dict))
 
         return thread
 
-    def _parse_post(self, post_bs):
+    def _parse_post(self, i, post_bs, thread_res_dict):
         """
         スレッドに付いた投稿一件一件を注意深くパースする関数
         これは投稿者による投稿も含む
@@ -132,5 +136,26 @@ class FutabaThread:
         # 投稿の本文 DAT形式する都合上 `<br>` タグを含んだ状態で取っておきたい.
         # のでタグの要素ごとに区切り文字を注入できる `separator` オプションを使う.
         post["body"] = post_bs.find("blockquote").get_text(separator="<br>", strip=True)
+
+        body_by_lines = post["body"].split("<br>")
+        # 引用レスのレス番号を取得して記録する。
+        post["quote_res"] = []
+        for line in body_by_lines:
+            quote_res = re.match(r"^>(?!>)(.+)", line)
+            if (
+                quote_res
+                and quote_res.group(1) in thread_res_dict
+                and thread_res_dict[quote_res.group(1)] not in post["quote_res"]
+            ):
+                post["quote_res"].append(thread_res_dict[quote_res.group(1)])
+
+        # 引用レスがあったとき引用内容からレス番号が引けるようにしたい。
+        # そのためにレスの行をkey, レス番号をvalueとする辞書を作成する。
+        # 同じ行が複数のレスに含まれたらもちろん壊れるが、そこまでの正確性はおいておく。
+        for line in body_by_lines:
+            thread_res_dict[line] = i
+
+        # 投稿番号でも引けるようにする。
+        thread_res_dict[post["no"]] = i
 
         return post

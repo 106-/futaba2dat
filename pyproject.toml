@@ -1,15 +1,15 @@
 [tool.poetry]
-name = "hello-web-application"
+name = "futaba2dat"
 version = "0.1.0"
 description = ""
 authors = ["Tomu Katsumata <katsumata-to@kadokawa.jp>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-fastapi = "0.105.0"
-uvicorn = {extras = ["standard"], version = "^0.13.4"}
-Jinja2 = "3.1.2"
-aiofiles = "^0.6.0"
+python = "^3.12"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.2"
+Jinja2 = "^3.1.6"
+aiofiles = "^24.1.0"
 SQLAlchemy = "^1.4.11"
 beautifulsoup4 = "^4.9.3"
 pydantic = "^1.8.1"
@@ -18,14 +18,9 @@ sqlalchemy-stubs = "^0.4"
 pymysql = "^1.0.3"
 pg8000 = "^1.29.4"
 
-[tool.poetry.dev-dependencies]
-pytest = "^5.2"
-black = {version = "^21.4b1", allow-prereleases = true}
-flake8 = "^4.0.1"
-isort = "^5.10.1"
-
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.3"
+ruff = "^0.11.12"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

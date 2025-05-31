@@ -2,3 +2,5 @@
 *.db
 .vscode/
 db/
+.venv/
+log.sqlite

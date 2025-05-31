@@ -7,6 +7,7 @@
     {%- if post["mail"] %}{{ post["mail"] }}{% endif %}<>
     {{-post["date"]}}
     {%- if post["id"] %} ID:{{post["id"]}}{% endif %}<>
+    {%- if post["quote_res"] %}{%- for quote in post["quote_res"] %}{%- if not loop.first %} {% endif %}>>{{ quote + 1 }}{%- endfor %}<br>{% endif %}
     {%- if post["image"] %}{{image_url_root}}{{post["image"]}}<br>{% endif %}
     {{- post["body"] | safe }}<>
 {% endfor %}
