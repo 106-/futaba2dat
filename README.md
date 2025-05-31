@@ -16,21 +16,11 @@ futaba2dat
 
 ### Dockerで動かす
 
+[![Docker Hub](https://img.shields.io/badge/Docker%20Hub-ubiq%2Ffutaba2dat-blue?logo=docker)](https://hub.docker.com/r/ubiq/futaba2dat) 
+
 ローカルで直に動かすためにはpoetryのインストールが必要となるため若干面倒くさいです.
-そこでここでにはDockerを使用した方法を載せておきます.
 
-1. リポジトリをローカルにcloneする
+dockerhubに最新版があるので、それを使うのが一番楽です。
 ```
-$ git clone git@github.com:106-/futaba2dat.git
-$ cd futaba2dat
-```
-
-2. Dockerコンテナをbuildする
-```
-$ make build
-```
-
-3. Dockerコンテナを起動する
-```
-$ docker run -d -p 80:80 futaba2dat
+$ docker run -d -p 80:80 ubiq/futaba2dat:latest
 ```

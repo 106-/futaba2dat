@@ -2,9 +2,9 @@
 	run\
 	test\
 	build\
-	build-gcp\
 	lint\
 	format\
+	renew-container\
 	reload-boards\
 
 TAG=$(shell git rev-parse --short HEAD)
@@ -44,16 +44,16 @@ test:
 build:
 	docker build -t futaba2dat:$(TAG) .
 
-build-gcp:
-	docker build -t gcr.io/$(GOOGLE_CLOUD_PROJECT)/futaba2dat:$(TAG) .
-	docker push gcr.io/$(GOOGLE_CLOUD_PROJECT)/futaba2dat:$(TAG)
-
 lint:
 	poetry run ruff check ./futaba2dat ./tests
 
 format:
 	poetry run ruff check --fix ./futaba2dat ./tests
 	poetry run ruff format ./futaba2dat ./tests
+
+renew-container:
+	docker compose pull
+	docker compose up -d
 
 reload-boards:
 	poetry run python -m tools.make_boards
