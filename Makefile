@@ -52,6 +52,7 @@ lint:
 	poetry run ruff check ./futaba2dat ./tests
 
 format:
+	poetry run ruff check --fix ./futaba2dat ./tests
 	poetry run ruff format ./futaba2dat ./tests
 
 reload-boards:

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "hello-web-application"
+name = "futaba2dat"
 version = "0.1.0"
 description = ""
 authors = ["Tomu Katsumata <katsumata-to@kadokawa.jp>"]
