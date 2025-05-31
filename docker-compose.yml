@@ -1,0 +1,14 @@
+
+services:
+  futaba2dat:
+    container_name: futaba2dat
+    image: ubiq/futaba2dat:latest
+    ports:
+      - "8000:80"
+    volumes:
+      - "./db:/app/db"
+    environment:
+      TZ: "Asia/Tokyo"
+      DB_NAME: "/app/db/log.sqlite"
+      LANG: "C.UTF-8"
+    restart: unless-stopped
