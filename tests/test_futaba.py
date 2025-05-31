@@ -102,6 +102,18 @@ def test_futaba_thread1() -> None:
                 "body": "画像あり本文",
                 "quote_res": [],
             },
+            {
+                "title": "題名",
+                "image": None,
+                "name": "投稿者名",
+                "mail": None,
+                "date": "21/01/01(金)00:00:00",
+                "id": "ID:xxxxxxxx",
+                "no": "No.000000004",
+                "sod": "+",
+                "body": ">0000000000003.jpg<br>画像引用",
+                "quote_res": [4],
+            },
         ],
     }
     assert thread == expected

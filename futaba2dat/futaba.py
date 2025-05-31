@@ -1,5 +1,7 @@
+import os
 import re
 from typing import Match
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -97,8 +99,10 @@ class FutabaThread:
         post["title"] = get_span_text("csb")
 
         # 投稿に含まれる画像を抽出. 含まれないこともある.
+        image_filename = None
         if post_bs.find("img"):
             post["image"] = post_bs.find("a", target="_blank").get("href")
+            image_filename = os.path.basename(urlparse(post["image"]).path)
         else:
             post["image"] = None
 
@@ -157,5 +161,9 @@ class FutabaThread:
 
         # 投稿番号でも引けるようにする。
         thread_res_dict[post["no"]] = i
+
+        # 画像ファイル名でも引けるようにする。
+        if image_filename:
+            thread_res_dict[image_filename] = i
 
         return post
