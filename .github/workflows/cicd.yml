@@ -45,6 +45,9 @@ jobs:
         
       - name: Run ruff format check
         run: poetry run ruff format --check .
+
+      - name: Run pytest
+        run: poetry run pytest
         
       - name: Build Docker image
         run: docker build -t futaba2dat-test .
