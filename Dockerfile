@@ -1,15 +1,16 @@
-FROM python:3.9 AS exporter
+FROM python:3.12 AS exporter
 COPY ./poetry.lock /poetry.lock
 COPY ./pyproject.toml /pyproject.toml
-RUN pip install poetry
+RUN pip install poetry \
+    && poetry self add poetry-plugin-export
 RUN poetry export -f requirements.txt --without-hashes > requirements.txt
 
-FROM python:3.9 AS builder
+FROM python:3.12 AS builder
 COPY --from=exporter /requirements.txt /requirements.txt
 RUN pip3 install -r requirements.txt
 
-FROM python:3.9-slim AS runner
-COPY --from=builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
+FROM python:3.12-slim AS runner
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
 WORKDIR /app
 COPY ./futaba2dat /app/futaba2dat

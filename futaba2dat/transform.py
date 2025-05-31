@@ -5,7 +5,6 @@ from futaba2dat.settings import Settings
 
 # ふたばアップローダー上のファイルを表す文字列をURLに変換する
 def futaba_uploader(thread):
-
     settings = Settings()
 
     for i, post in enumerate(thread["posts"]):
