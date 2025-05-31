@@ -64,6 +64,7 @@ def test_futaba_thread1() -> None:
                 "no": "No.000000000",
                 "sod": "+",
                 "body": "本文1<br>本文2",
+                "quote_res": [],
             },
             {
                 "title": "題名",
@@ -74,7 +75,8 @@ def test_futaba_thread1() -> None:
                 "id": "ID:xxxxxxxx",
                 "no": "No.000000001",
                 "sod": "+",
-                "body": "本文",
+                "body": "引用",
+                "quote_res": [],
             },
             {
                 "title": "題名",
@@ -86,6 +88,7 @@ def test_futaba_thread1() -> None:
                 "no": "No.000000002",
                 "sod": "+",
                 "body": ">引用<br>本文",
+                "quote_res": [2],
             },
             {
                 "title": "題名",
@@ -97,6 +100,7 @@ def test_futaba_thread1() -> None:
                 "no": "No.000000003",
                 "sod": "+",
                 "body": "画像あり本文",
+                "quote_res": [],
             },
         ],
     }
@@ -120,6 +124,7 @@ def test_futaba_thread2() -> None:
                 "no": "No.0000000",
                 "sod": "+",
                 "body": "本文1<br>本文2",
+                "quote_res": [],
             },
             {
                 "title": None,
@@ -131,6 +136,7 @@ def test_futaba_thread2() -> None:
                 "no": "No.0000001",
                 "sod": "+",
                 "body": "画像あり本文",
+                "quote_res": [],
             },
             {
                 "title": None,
@@ -142,6 +148,7 @@ def test_futaba_thread2() -> None:
                 "no": "No.0000002",
                 "sod": "+",
                 "body": "画像なし本文",
+                "quote_res": [],
             },
             {
                 "title": None,
@@ -153,6 +160,7 @@ def test_futaba_thread2() -> None:
                 "no": "No.0000003",
                 "sod": "+",
                 "body": "画像あり本文3",
+                "quote_res": [],
             },
         ],
     }
