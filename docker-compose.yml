@@ -11,4 +11,6 @@ services:
       TZ: "Asia/Tokyo"
       DB_NAME: "/app/db/log.sqlite"
       LANG: "C.UTF-8"
+    # 現在のユーザーのUID:GIDでコンテナを実行
+    user: "${UID:-1000}:${GID:-1000}"
     restart: unless-stopped

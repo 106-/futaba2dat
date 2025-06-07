@@ -36,7 +36,47 @@ db_engine = sa.create_engine(
 )
 db.create_table(db_engine)
 
+
+def time_ago(timestamp_str: str) -> str:
+    """タイムスタンプから相対時間を生成（n秒前、n分前など）"""
+    try:
+        # ISO形式のタイムスタンプをパース（naive datetime として扱う）
+        timestamp = datetime.datetime.fromisoformat(timestamp_str.replace("Z", ""))
+        now = datetime.datetime.now()
+        diff = now - timestamp
+
+        seconds = int(diff.total_seconds())
+
+        # 負の値の場合は絶対値を取る（未来の時刻の場合）
+        seconds = abs(seconds)
+
+        if seconds < 60:
+            return f"{seconds}秒前"
+        elif seconds < 3600:
+            minutes = seconds // 60
+            return f"{minutes}分前"
+        elif seconds < 86400:
+            hours = seconds // 3600
+            return f"{hours}時間前"
+        else:
+            days = seconds // 86400
+            return f"{days}日前"
+    except Exception:
+        # パースエラーの場合は元の形式で表示
+        try:
+            return (
+                timestamp_str.split("T")[0]
+                + " "
+                + timestamp_str.split("T")[1].split(".")[0]
+            )
+        except:
+            return timestamp_str
+
+
 templates = Jinja2Templates(directory="templates")
+# カスタムフィルターを追加
+templates.env.filters["time_ago"] = time_ago
+
 boards = json.load(open("./futaba2dat/boards.json", "r"))
 boards_hash = {}
 for i in boards:
@@ -125,17 +165,18 @@ async def get(
     request: Request, engine: sa.engine.Connectable = Depends(get_engine)
 ) -> Response:
     context = {"request": request}
-    return templates.TemplateResponse("index.j2", context)
+    return templates.TemplateResponse(request, "index.j2", context)
 
 
-# 閲覧履歴
+# 閲覧履歴とダッシュボード
 @app.get("/log", response_class=HTMLResponse)
 async def log(
     request: Request, engine: sa.engine.Connectable = Depends(get_engine)
 ) -> Response:
     histories = db.get_recent(engine)
-    context = {"request": request, "histories": histories}
-    return templates.TemplateResponse("log.j2", context)
+    analytics = db.get_dashboard_analytics(engine)
+    context = {"request": request, "histories": histories, "analytics": analytics}
+    return templates.TemplateResponse(request, "log.j2", context)
 
 
 # chmateの場合, 板のhtml内に<title>が含まれていればそれを板の名前としている.
@@ -143,6 +184,7 @@ async def log(
 @app.get("/{sub_domain}/{board_dir}/")
 async def board_top(request: Request, sub_domain: str, board_dir: str):
     generated_content = templates.TemplateResponse(
+        request,
         "board.j2",
         {
             "request": request,
@@ -160,6 +202,7 @@ async def board_top(request: Request, sub_domain: str, board_dir: str):
 @app.get("/{sub_domain}/{board_dir}/SETTING.TXT")
 async def setting_txt(request: Request, sub_domain: str, board_dir: str):
     generated_content = templates.TemplateResponse(
+        request,
         "setting.j2",
         {
             "request": request,
@@ -183,7 +226,7 @@ async def subject(request: Request, sub_domain: str, board_dir: str):
         threads = list(filter(lambda x: x["count"] != 0, threads))
 
     generated_content = templates.TemplateResponse(
-        "subject.j2", {"request": request, "threads": threads}
+        request, "subject.j2", {"request": request, "threads": threads}
     )
     generated_content.headers["content-type"] = "text/plain"
     generated_content = convert_to_shiftjis(generated_content)
@@ -241,6 +284,7 @@ async def thread(
 
     image_url_root = Settings().futaba_image_url_root.format(sub_domain, board_dir)
     generated_content = templates.TemplateResponse(
+        request,
         "thread.j2",
         {
             "request": request,
@@ -267,6 +311,7 @@ async def bbsmenu(
         mod_boards = boards
 
     generated_content = templates.TemplateResponse(
+        request,
         "bbsmenu.j2",
         {"request": request, "boards": mod_boards},
     )

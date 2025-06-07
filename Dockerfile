@@ -1,20 +1,41 @@
-FROM python:3.12 AS exporter
-COPY ./poetry.lock /poetry.lock
-COPY ./pyproject.toml /pyproject.toml
-RUN pip install poetry \
-    && poetry self add poetry-plugin-export
-RUN poetry export -f requirements.txt --without-hashes > requirements.txt
+FROM python:3.12-slim AS base
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
-FROM python:3.12 AS builder
-COPY --from=exporter /requirements.txt /requirements.txt
-RUN pip3 install -r requirements.txt
+FROM base AS poetry-exporter
+WORKDIR /tmp
+COPY poetry.lock pyproject.toml ./
+RUN pip install --no-cache-dir poetry>=2.0.0 \
+    && poetry self add poetry-plugin-export \
+    && poetry export -f requirements.txt --without-hashes > requirements.txt
+
+FROM base AS builder
+COPY --from=poetry-exporter /tmp/requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
 
 FROM python:3.12-slim AS runner
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
-COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
+LABEL maintainer="106-"
+LABEL description="Futaba to 2ch DAT format converter"
+LABEL version="1.0"
+
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+RUN groupadd --gid 1000 appuser \
+    && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash appuser
+
+COPY --from=builder --chown=1000:1000 /root/.local /home/appuser/.local
+ENV PATH=/home/appuser/.local/bin:$PATH
+
 WORKDIR /app
-COPY ./futaba2dat /app/futaba2dat
-COPY ./static /app/static
-COPY ./templates /app/templates
+
+COPY --chown=1000:1000 ./futaba2dat ./futaba2dat
+COPY --chown=1000:1000 ./static ./static
+COPY --chown=1000:1000 ./templates ./templates
+
+USER 1000:1000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:80/', timeout=5)" || exit 1
+
 EXPOSE 80
-CMD ["/usr/local/bin/uvicorn", "futaba2dat.main:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips", "*"]
+
+ENTRYPOINT ["python", "-m", "uvicorn"]
+CMD ["futaba2dat.main:app", "--host", "0.0.0.0", "--port", "80", "--proxy-headers", "--forwarded-allow-ips", "*"]
