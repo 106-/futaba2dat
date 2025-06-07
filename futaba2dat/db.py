@@ -53,32 +53,30 @@ def get_recent(engine: sa.engine.Connectable) -> list[History]:
     """すべてのメッセージを取得する"""
     with engine.connect() as connection:
         query = (
-            sa.sql.select(
-                (
-                    history_table.c.id,
-                    history_table.c.title,
-                    history_table.c.link,
-                    history_table.c.board,
-                    history_table.c.host,
-                    history_table.c.created_at,
-                )
+            sa.select(
+                history_table.c.id,
+                history_table.c.title,
+                history_table.c.link,
+                history_table.c.board,
+                history_table.c.host,
+                history_table.c.created_at,
             )
             .order_by(history_table.c.created_at.desc())
             .limit(50)
         )
-        return [History(**m) for m in connection.execute(query)]
+        return [History(**m._asdict()) for m in connection.execute(query)]
 
 
 def add(engine: sa.engine.Connectable, history: History) -> None:
     """メッセージを保存する"""
-    with engine.connect() as connection:
+    with engine.begin() as connection:
         query = history_table.insert()
         connection.execute(query, history.dict(exclude_unset=True))
 
 
 def delete_all(engine: sa.engine.Connectable) -> None:
     """メッセージをすべて消す（テスト用）"""
-    with engine.connect() as connection:
+    with engine.begin() as connection:
         connection.execute(history_table.delete())
 
 

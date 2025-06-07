@@ -65,8 +65,8 @@ def test_query_uses_index():
             },
         ]
 
-        for data in test_data:
-            conn.execute(history_table.insert(), data)
+        stmt = history_table.insert()
+        conn.execute(stmt, test_data)
 
         # 実行計画確認
         query = "EXPLAIN QUERY PLAN SELECT * FROM histories ORDER BY created_at DESC LIMIT 50"

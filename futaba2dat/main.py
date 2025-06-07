@@ -165,7 +165,7 @@ async def get(
     request: Request, engine: sa.engine.Connectable = Depends(get_engine)
 ) -> Response:
     context = {"request": request}
-    return templates.TemplateResponse("index.j2", context)
+    return templates.TemplateResponse(request, "index.j2", context)
 
 
 # 閲覧履歴とダッシュボード
@@ -176,7 +176,7 @@ async def log(
     histories = db.get_recent(engine)
     analytics = db.get_dashboard_analytics(engine)
     context = {"request": request, "histories": histories, "analytics": analytics}
-    return templates.TemplateResponse("log.j2", context)
+    return templates.TemplateResponse(request, "log.j2", context)
 
 
 # chmateの場合, 板のhtml内に<title>が含まれていればそれを板の名前としている.
@@ -184,6 +184,7 @@ async def log(
 @app.get("/{sub_domain}/{board_dir}/")
 async def board_top(request: Request, sub_domain: str, board_dir: str):
     generated_content = templates.TemplateResponse(
+        request,
         "board.j2",
         {
             "request": request,
@@ -201,6 +202,7 @@ async def board_top(request: Request, sub_domain: str, board_dir: str):
 @app.get("/{sub_domain}/{board_dir}/SETTING.TXT")
 async def setting_txt(request: Request, sub_domain: str, board_dir: str):
     generated_content = templates.TemplateResponse(
+        request,
         "setting.j2",
         {
             "request": request,
@@ -224,7 +226,7 @@ async def subject(request: Request, sub_domain: str, board_dir: str):
         threads = list(filter(lambda x: x["count"] != 0, threads))
 
     generated_content = templates.TemplateResponse(
-        "subject.j2", {"request": request, "threads": threads}
+        request, "subject.j2", {"request": request, "threads": threads}
     )
     generated_content.headers["content-type"] = "text/plain"
     generated_content = convert_to_shiftjis(generated_content)
@@ -282,6 +284,7 @@ async def thread(
 
     image_url_root = Settings().futaba_image_url_root.format(sub_domain, board_dir)
     generated_content = templates.TemplateResponse(
+        request,
         "thread.j2",
         {
             "request": request,
@@ -308,6 +311,7 @@ async def bbsmenu(
         mod_boards = boards
 
     generated_content = templates.TemplateResponse(
+        request,
         "bbsmenu.j2",
         {"request": request, "boards": mod_boards},
     )
