@@ -8,11 +8,12 @@
 	reload-boards\
 
 TAG=$(shell git rev-parse --short HEAD)
+PORT=80
 
 run:
 	poetry run uvicorn futaba2dat.main:app \
 		--host 0.0.0.0 \
-		--port 8001 \
+		--port $(PORT) \
 		--reload \
 		--reload-dir futaba2dat \
 		--reload-dir static \
@@ -20,28 +21,20 @@ run:
 		--proxy-headers \
 		--forwarded-allow-ips "*"
 
-docker-run:
-	docker run -d \
-		--restart always \
+docker-run: docker-build
+	docker run --rm \
 		--name futaba2dat \
 		--env 'TZ=Asia/Tokyo' \
-		--env 'DB_NAME=/app/db/log.sqlite' \
-		-p 8000:80 \
-		-v ./db:/app/db \
+		-p $(PORT):80 \
 		futaba2dat:$(TAG)
 
-docker-shell:
-	docker exec -it futaba2dat bash
-
 clean:
-	docker stop futaba2dat
-	docker rm futaba2dat
-	docker rmi futaba2dat
+	docker images 'futaba2dat' --format '{{.Repository}}:{{.Tag}}' | xargs -r docker rmi
 
 test:
 	poetry run pytest
 
-build:
+docker-build:
 	docker build -t futaba2dat:$(TAG) .
 
 lint:
