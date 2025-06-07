@@ -12,7 +12,7 @@ from futaba2dat import db
 from futaba2dat.db import History
 from futaba2dat.futaba import FutabaBoard, FutabaThread
 from futaba2dat.settings import Settings
-from futaba2dat.transform import futaba_uploader
+from futaba2dat.transform import convert_futaba_urls_to_2ch_format, futaba_uploader
 
 app = FastAPI()
 
@@ -47,6 +47,22 @@ for i in boards:
 # cf. https://fastapi.tiangolo.com/tutorial/dependencies/
 def get_engine() -> sa.engine.Connectable:
     return db_engine
+
+
+def get_proxy_domain(request: Request) -> str:
+    """リバースプロキシのドメイン名を取得する"""
+    # X-Forwarded-Hostヘッダーを最優先で確認
+    forwarded_host = request.headers.get("x-forwarded-host")
+    if forwarded_host:
+        return forwarded_host.split(",")[0].strip()
+    
+    # 通常のHostヘッダーを確認
+    host = request.headers.get("host")
+    if host:
+        return host
+    
+    # フォールバック
+    return "localhost"
 
 
 def convert_to_shiftjis(generated_content):
@@ -144,6 +160,10 @@ async def thread(
     else:
         thread = FutabaThread().parse(response.text)
         thread = futaba_uploader(thread)
+        
+        # プロキシドメインを取得してふたばURLを2ch形式に変換
+        proxy_domain = get_proxy_domain(request)
+        thread = convert_futaba_urls_to_2ch_format(thread, proxy_domain)
 
     thread_uri = settings.futaba_thread_url.format(sub_domain, board_dir, id)
     link_to_thread = settings.futaba_thread_url.format(sub_domain, board_dir, id)
