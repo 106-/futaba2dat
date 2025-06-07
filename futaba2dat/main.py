@@ -128,13 +128,14 @@ async def get(
     return templates.TemplateResponse("index.j2", context)
 
 
-# 閲覧履歴
+# 閲覧履歴とダッシュボード
 @app.get("/log", response_class=HTMLResponse)
 async def log(
     request: Request, engine: sa.engine.Connectable = Depends(get_engine)
 ) -> Response:
     histories = db.get_recent(engine)
-    context = {"request": request, "histories": histories}
+    analytics = db.get_dashboard_analytics(engine)
+    context = {"request": request, "histories": histories, "analytics": analytics}
     return templates.TemplateResponse("log.j2", context)
 
 
