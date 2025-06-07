@@ -11,7 +11,8 @@ TAG=$(shell git rev-parse --short HEAD)
 PORT=80
 
 run:
-	poetry run uvicorn futaba2dat.main:app \
+	mkdir -p ./db
+	DB_NAME=./db/log.sqlite poetry run uvicorn futaba2dat.main:app \
 		--host 0.0.0.0 \
 		--port $(PORT) \
 		--reload \
@@ -22,9 +23,12 @@ run:
 		--forwarded-allow-ips "*"
 
 docker-run: docker-build
+	mkdir -p ./db
 	docker run --rm \
 		--name futaba2dat \
 		--env 'TZ=Asia/Tokyo' \
+		--env 'DB_NAME=/app/db/log.sqlite' \
+		-v "$(PWD)/db:/app/db" \
 		-p $(PORT):80 \
 		futaba2dat:$(TAG)
 
