@@ -55,12 +55,12 @@ def get_proxy_domain(request: Request) -> str:
     forwarded_host = request.headers.get("x-forwarded-host")
     if forwarded_host:
         return forwarded_host.split(",")[0].strip()
-    
+
     # 通常のHostヘッダーを確認
     host = request.headers.get("host")
     if host:
         return host
-    
+
     # フォールバック
     return "localhost"
 
@@ -160,7 +160,7 @@ async def thread(
     else:
         thread = FutabaThread().parse(response.text)
         thread = futaba_uploader(thread)
-        
+
         # プロキシドメインを取得してふたばURLを2ch形式に変換
         proxy_domain = get_proxy_domain(request)
         thread = convert_futaba_urls_to_2ch_format(thread, proxy_domain)
