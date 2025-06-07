@@ -204,7 +204,6 @@ async def thread(
         # 404の場合はFTBucket URLを含む特別なレスポンスを返す
         if response.status_code == 404:
             thread = create_404_thread_response(sub_domain, board_dir, id)
-            print(thread)
         else:
             raise HTTPException(status_code=response.status_code)
     else:
