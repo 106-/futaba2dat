@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+- あなたは日本語で話します。
+
 ## プロジェクト概要
 
 **futaba2dat** は、ふたば☆ちゃんねるのスレッドを5ch/2chのDAT形式に変換するFastAPI Webアプリケーションです。ChMateなどのモバイル2chブラウザからふたばちゃんねるを閲覧できるようにするプロキシサーバーとして動作します。

@@ -88,7 +88,20 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
         # 過去1日の基準日時
         day_ago = (datetime.datetime.now() - datetime.timedelta(days=1)).isoformat()
 
-        # 1. 過去1週間の人気板ランキング（アクセス数順）
+        # 1. 過去24時間の人気板ランキング（アクセス数順）
+        board_popularity_day_query = sa.text("""
+            SELECT board, COUNT(*) as access_count
+            FROM histories 
+            WHERE created_at > :day_ago
+            GROUP BY board 
+            ORDER BY access_count DESC 
+            LIMIT 10
+        """)
+        board_popularity_day = list(
+            connection.execute(board_popularity_day_query, {"day_ago": day_ago})
+        )
+
+        # 2. 過去1週間の人気板ランキング（アクセス数順）
         board_popularity_query = sa.text("""
             SELECT board, COUNT(*) as access_count
             FROM histories 
@@ -101,7 +114,20 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             connection.execute(board_popularity_query, {"week_ago": week_ago})
         )
 
-        # 2. 過去1週間の人気スレッドランキング（アクセス数順）
+        # 3. 過去24時間の人気スレッドランキング（アクセス数順）
+        thread_popularity_day_query = sa.text("""
+            SELECT title, link, board, COUNT(*) as access_count
+            FROM histories 
+            WHERE created_at > :day_ago
+            GROUP BY title, link, board 
+            ORDER BY access_count DESC 
+            LIMIT 10
+        """)
+        thread_popularity_day = list(
+            connection.execute(thread_popularity_day_query, {"day_ago": day_ago})
+        )
+
+        # 4. 過去1週間の人気スレッドランキング（アクセス数順）
         thread_popularity_query = sa.text("""
             SELECT title, link, board, COUNT(*) as access_count
             FROM histories 
@@ -114,7 +140,7 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             connection.execute(thread_popularity_query, {"week_ago": week_ago})
         )
 
-        # 3. 過去1日のユニークユーザー数
+        # 5. 過去1日のユニークユーザー数
         unique_users_day_query = sa.text("""
             SELECT COUNT(DISTINCT host) as unique_users
             FROM histories 
@@ -124,7 +150,7 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             unique_users_day_query, {"day_ago": day_ago}
         ).scalar()
 
-        # 4. 過去1週間のユニークユーザー数
+        # 6. 過去1週間のユニークユーザー数
         unique_users_week_query = sa.text("""
             SELECT COUNT(DISTINCT host) as unique_users
             FROM histories 
@@ -134,7 +160,7 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             unique_users_week_query, {"week_ago": week_ago}
         ).scalar()
 
-        # 5. 過去1週間の総アクセス数
+        # 7. 過去1週間の総アクセス数
         total_access_week_query = sa.text("""
             SELECT COUNT(*) as total_access
             FROM histories 
@@ -144,7 +170,7 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             total_access_week_query, {"week_ago": week_ago}
         ).scalar()
 
-        # 6. 過去1日の総アクセス数
+        # 8. 過去1日の総アクセス数
         total_access_day_query = sa.text("""
             SELECT COUNT(*) as total_access
             FROM histories 
@@ -155,8 +181,21 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
         ).scalar()
 
         return {
+            "board_popularity_day": [
+                {"board": row[0], "access_count": row[1]}
+                for row in board_popularity_day
+            ],
             "board_popularity": [
                 {"board": row[0], "access_count": row[1]} for row in board_popularity
+            ],
+            "thread_popularity_day": [
+                {
+                    "title": row[0],
+                    "link": row[1],
+                    "board": row[2],
+                    "access_count": row[3],
+                }
+                for row in thread_popularity_day
             ],
             "thread_popularity": [
                 {

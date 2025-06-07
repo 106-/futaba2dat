@@ -81,6 +81,54 @@
         <div class="mb-4">
           <div class="card">
             <div class="card-header">
+              <h5 class="card-title mb-0">人気板ランキング（過去24時間）</h5>
+            </div>
+            <div class="card-body">
+              {% if analytics.board_popularity_day %}
+                {% for board in analytics.board_popularity_day %}
+                <div class="ranking-item">
+                  <span class="rank-number">{{ loop.index }}</span>
+                  <strong>{{ board.board }}</strong>
+                  <span class="badge badge-primary ml-2">{{ board.access_count }}回</span>
+                </div>
+                {% endfor %}
+              {% else %}
+                <p class="text-muted">データがありません</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">人気スレッドランキング（過去24時間）</h5>
+            </div>
+            <div class="card-body">
+              {% if analytics.thread_popularity_day %}
+                {% for thread in analytics.thread_popularity_day %}
+                <div class="ranking-item">
+                  <span class="rank-number">{{ loop.index }}</span>
+                  <div>
+                    <a href="{{ thread.link }}" class="text-decoration-none">
+                      {{ thread.title|truncate(50) }}
+                    </a>
+                    <br>
+                    <small class="text-muted">{{ thread.board }}</small>
+                    <span class="badge badge-primary ml-2">{{ thread.access_count }}回</span>
+                  </div>
+                </div>
+                {% endfor %}
+              {% else %}
+                <p class="text-muted">データがありません</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <div class="card">
+            <div class="card-header">
               <h5 class="card-title mb-0">人気板ランキング（過去1週間）</h5>
             </div>
             <div class="card-body">
