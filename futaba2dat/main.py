@@ -36,7 +36,47 @@ db_engine = sa.create_engine(
 )
 db.create_table(db_engine)
 
+
+def time_ago(timestamp_str: str) -> str:
+    """タイムスタンプから相対時間を生成（n秒前、n分前など）"""
+    try:
+        # ISO形式のタイムスタンプをパース（naive datetime として扱う）
+        timestamp = datetime.datetime.fromisoformat(timestamp_str.replace("Z", ""))
+        now = datetime.datetime.now()
+        diff = now - timestamp
+
+        seconds = int(diff.total_seconds())
+
+        # 負の値の場合は絶対値を取る（未来の時刻の場合）
+        seconds = abs(seconds)
+
+        if seconds < 60:
+            return f"{seconds}秒前"
+        elif seconds < 3600:
+            minutes = seconds // 60
+            return f"{minutes}分前"
+        elif seconds < 86400:
+            hours = seconds // 3600
+            return f"{hours}時間前"
+        else:
+            days = seconds // 86400
+            return f"{days}日前"
+    except Exception:
+        # パースエラーの場合は元の形式で表示
+        try:
+            return (
+                timestamp_str.split("T")[0]
+                + " "
+                + timestamp_str.split("T")[1].split(".")[0]
+            )
+        except:
+            return timestamp_str
+
+
 templates = Jinja2Templates(directory="templates")
+# カスタムフィルターを追加
+templates.env.filters["time_ago"] = time_ago
+
 boards = json.load(open("./futaba2dat/boards.json", "r"))
 boards_hash = {}
 for i in boards:

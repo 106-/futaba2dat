@@ -147,7 +147,7 @@
                     <tr>
                       <td>{{history.board}}</td>
                       <td><a href="{{ history.link }}" class="text-decoration-none"> {{history.title|truncate(60)}} </a></td>
-                      <td><small class="text-muted">{{ history.created_at.split('T')[0] }} {{ history.created_at.split('T')[1].split('.')[0] }}</small></td>
+                      <td><small class="text-muted">{{ history.created_at | time_ago }}</small></td>
                     </tr>
                     {% endfor %}
                   </tbody>
