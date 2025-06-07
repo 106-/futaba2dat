@@ -36,6 +36,7 @@ history_table = sa.Table(
         "created_at",
         sa.String(256),
         nullable=False,
+        index=True,
     ),
 )
 
