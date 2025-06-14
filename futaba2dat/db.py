@@ -64,14 +64,14 @@ def get_recent(engine: sa.engine.Connectable) -> list[History]:
             .order_by(history_table.c.created_at.desc())
             .limit(50)
         )
-        return [History(**m._asdict()) for m in connection.execute(query)]
+        return [History(**m._mapping) for m in connection.execute(query).fetchall()]
 
 
 def add(engine: sa.engine.Connectable, history: History) -> None:
     """メッセージを保存する"""
     with engine.begin() as connection:
-        query = history_table.insert()
-        connection.execute(query, history.dict(exclude_unset=True))
+        query = history_table.insert().values(**history.dict(exclude_unset=True))
+        connection.execute(query)
 
 
 def delete_all(engine: sa.engine.Connectable) -> None:
@@ -98,7 +98,9 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             LIMIT 10
         """)
         board_popularity_day = list(
-            connection.execute(board_popularity_day_query, {"day_ago": day_ago})
+            connection.execute(
+                board_popularity_day_query, {"day_ago": day_ago}
+            ).fetchall()
         )
 
         # 2. 過去1週間の人気板ランキング（アクセス数順）
@@ -111,7 +113,9 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             LIMIT 10
         """)
         board_popularity = list(
-            connection.execute(board_popularity_query, {"week_ago": week_ago})
+            connection.execute(
+                board_popularity_query, {"week_ago": week_ago}
+            ).fetchall()
         )
 
         # 3. 過去24時間の人気スレッドランキング（アクセス数順）
@@ -124,7 +128,9 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             LIMIT 10
         """)
         thread_popularity_day = list(
-            connection.execute(thread_popularity_day_query, {"day_ago": day_ago})
+            connection.execute(
+                thread_popularity_day_query, {"day_ago": day_ago}
+            ).fetchall()
         )
 
         # 4. 過去1週間の人気スレッドランキング（アクセス数順）
@@ -137,7 +143,9 @@ def get_dashboard_analytics(engine: sa.engine.Connectable) -> dict:
             LIMIT 10
         """)
         thread_popularity = list(
-            connection.execute(thread_popularity_query, {"week_ago": week_ago})
+            connection.execute(
+                thread_popularity_query, {"week_ago": week_ago}
+            ).fetchall()
         )
 
         # 5. 過去1日のユニークユーザー数
