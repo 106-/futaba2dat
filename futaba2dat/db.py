@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class History(BaseModel):
     """datの閲覧履歴"""
 
-    id: Optional[int]
+    id: Optional[int] = None
     title: str
     link: str
     board: str
@@ -70,7 +70,7 @@ def get_recent(engine: sa.engine.Connectable) -> list[History]:
 def add(engine: sa.engine.Connectable, history: History) -> None:
     """メッセージを保存する"""
     with engine.begin() as connection:
-        query = history_table.insert().values(**history.dict(exclude_unset=True))
+        query = history_table.insert().values(**history.model_dump(exclude_unset=True))
         connection.execute(query)
 
 
