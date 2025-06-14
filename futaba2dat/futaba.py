@@ -3,23 +3,31 @@ import re
 from typing import Match
 from urllib.parse import urlparse
 
+import httpx
 import requests
 from bs4 import BeautifulSoup
+from fastapi.concurrency import run_in_threadpool
 
 from futaba2dat.settings import Settings
 
 
 class FutabaBoard:
-    def get_and_parse(self, sub_domain: str, board_dir: str):
+    async def get_and_parse(self, sub_domain: str, board_dir: str):
         # ふたば掲示板のスレッド一覧を取得しパースする
-        html = self.get(sub_domain, board_dir)
-        return self.parse(html)
+        html = await self.get(sub_domain, board_dir)
+        return await self.parse_async(html)
 
-    def get(self, sub_domain: str, board_dir: str):
+    async def get(self, sub_domain: str, board_dir: str):
         setting = Settings()
         cookie = setting.futaba_catalog_view_cookie
         futaba_board_url = setting.futaba_board_url.format(sub_domain, board_dir)
-        return requests.get(futaba_board_url, cookies=cookie).text
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(futaba_board_url, cookies=cookie)
+            return response.text
+
+    async def parse_async(self, text: str):
+        return await run_in_threadpool(self.parse, text)
 
     def parse(self, text: str):
         """
@@ -50,12 +58,16 @@ class FutabaBoard:
 
 
 class FutabaThread:
-    def get(self, sub_domain: str, board_dir: str, thread_id: str):
-        # ふたば掲示板のスレッド一覧を取得しパースする
+    async def get(self, sub_domain: str, board_dir: str, thread_id: str):
+        # ふたば掲示板のスレッドを取得する
         setting = Settings()
-        return requests.get(
-            setting.futaba_thread_url.format(sub_domain, board_dir, thread_id)
-        )
+        url = setting.futaba_thread_url.format(sub_domain, board_dir, thread_id)
+
+        async with httpx.AsyncClient() as client:
+            return await client.get(url)
+
+    async def parse_async(self, text: str):
+        return await run_in_threadpool(self.parse, text)
 
     def parse(self, text: str):
         bs = BeautifulSoup(text, "html.parser")

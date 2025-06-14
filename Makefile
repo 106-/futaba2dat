@@ -8,7 +8,7 @@
 	reload-boards\
 
 TAG=$(shell git rev-parse --short HEAD)
-PORT=80
+PORT?=80
 
 run:
 	mkdir -p ./db

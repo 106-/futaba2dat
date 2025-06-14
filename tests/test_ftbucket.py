@@ -146,7 +146,7 @@ def test_404_no_history_logging(test_client, test_db_engine, monkeypatch):
     mock_response = Mock()
     mock_response.status_code = 404
 
-    def mock_futaba_get(self, sub_domain, board_dir, thread_id):
+    async def mock_futaba_get(self, sub_domain, board_dir, thread_id):
         return mock_response
 
     monkeypatch.setattr("futaba2dat.futaba.FutabaThread.get", mock_futaba_get)
