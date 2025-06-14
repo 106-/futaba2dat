@@ -19,12 +19,9 @@ client = TestClient(app)
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("sub_domain,board_dir", [
-    ("may", "b"),
-    ("img", "b"), 
-    ("jun", "jun"),
-    ("dec", "55")
-])
+@pytest.mark.parametrize(
+    "sub_domain,board_dir", [("may", "b"), ("img", "b"), ("jun", "jun"), ("dec", "55")]
+)
 def test_subject_txt(sub_domain, board_dir):
     """各板の実際のsubject.txtの取得テスト"""
     response = client.get(f"/{sub_domain}/{board_dir}/subject.txt")
@@ -46,12 +43,9 @@ def test_subject_txt(sub_domain, board_dir):
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("sub_domain,board_dir", [
-    ("may", "b"),
-    ("img", "b"), 
-    ("jun", "jun"),
-    ("dec", "55")
-])
+@pytest.mark.parametrize(
+    "sub_domain,board_dir", [("may", "b"), ("img", "b"), ("jun", "jun"), ("dec", "55")]
+)
 def test_thread_dat(sub_domain, board_dir):
     """各板の実際のスレッドDATファイルの取得テスト"""
     # まずsubject.txtから有効なスレッドIDを取得
@@ -90,12 +84,15 @@ def test_thread_dat(sub_domain, board_dir):
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("sub_domain,board_dir,expected_name", [
-    ("may", "b", "二次元裏"),
-    ("img", "b", "二次元裏"),
-    ("jun", "jun", "二次元裏"),
-    ("dec", "55", "東方裏")
-])
+@pytest.mark.parametrize(
+    "sub_domain,board_dir,expected_name",
+    [
+        ("may", "b", "二次元裏"),
+        ("img", "b", "二次元裏"),
+        ("jun", "jun", "二次元裏"),
+        ("dec", "55", "東方裏"),
+    ],
+)
 def test_board_top_page(sub_domain, board_dir, expected_name):
     """各板のトップページの取得テスト"""
     response = client.get(f"/{sub_domain}/{board_dir}/")
@@ -114,12 +111,15 @@ def test_board_top_page(sub_domain, board_dir, expected_name):
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("sub_domain,board_dir,expected_name", [
-    ("may", "b", "二次元裏"),
-    ("img", "b", "二次元裏"),
-    ("jun", "jun", "二次元裏"),
-    ("dec", "55", "東方裏")
-])
+@pytest.mark.parametrize(
+    "sub_domain,board_dir,expected_name",
+    [
+        ("may", "b", "二次元裏"),
+        ("img", "b", "二次元裏"),
+        ("jun", "jun", "二次元裏"),
+        ("dec", "55", "東方裏"),
+    ],
+)
 def test_setting_txt(sub_domain, board_dir, expected_name):
     """各板のSETTING.TXTファイルの取得テスト"""
     response = client.get(f"/{sub_domain}/{board_dir}/SETTING.TXT")
@@ -139,12 +139,9 @@ def test_setting_txt(sub_domain, board_dir, expected_name):
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("sub_domain,board_dir", [
-    ("may", "b"),
-    ("img", "b"), 
-    ("jun", "jun"),
-    ("dec", "55")
-])
+@pytest.mark.parametrize(
+    "sub_domain,board_dir", [("may", "b"), ("img", "b"), ("jun", "jun"), ("dec", "55")]
+)
 def test_full_workflow(sub_domain, board_dir):
     """各板のフルワークフローテスト：板一覧→スレッド一覧→スレッド内容"""
 
@@ -179,12 +176,9 @@ def test_full_workflow(sub_domain, board_dir):
 
 
 @pytest.mark.integration
-@pytest.mark.parametrize("sub_domain,board_dir", [
-    ("may", "b"),
-    ("img", "b"), 
-    ("jun", "jun"),
-    ("dec", "55")
-])
+@pytest.mark.parametrize(
+    "sub_domain,board_dir", [("may", "b"), ("img", "b"), ("jun", "jun"), ("dec", "55")]
+)
 def test_error_handling_404_thread(sub_domain, board_dir):
     """各板の存在しないスレッドの404ハンドリングテスト"""
     # 存在しないスレッドID（非常に大きな数値）でアクセス
