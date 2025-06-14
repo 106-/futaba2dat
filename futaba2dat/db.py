@@ -8,7 +8,7 @@ from pydantic import BaseModel
 class History(BaseModel):
     """datの閲覧履歴"""
 
-    id: Optional[int]
+    id: Optional[int] = None
     title: str
     link: str
     board: str
