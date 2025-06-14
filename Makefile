@@ -1,6 +1,8 @@
 .PHONY:\
 	run\
 	test\
+	test-integration\
+	test-all\
 	build\
 	lint\
 	format\
@@ -8,7 +10,7 @@
 	reload-boards\
 
 TAG=$(shell git rev-parse --short HEAD)
-PORT=80
+PORT?=80
 
 run:
 	mkdir -p ./db
@@ -36,7 +38,13 @@ clean:
 	docker images 'futaba2dat' --format '{{.Repository}}:{{.Tag}}' | xargs -r docker rmi
 
 test:
-	poetry run pytest
+	poetry run pytest -m "not integration"
+
+test-integration:
+	poetry run pytest -m integration -v
+
+test-all:
+	poetry run pytest -v
 
 docker-build:
 	docker build -t futaba2dat:$(TAG) .

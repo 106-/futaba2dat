@@ -219,7 +219,7 @@ async def setting_txt(request: Request, sub_domain: str, board_dir: str):
 # スレッド一覧を表すファイル.
 @app.get("/{sub_domain}/{board_dir}/subject.txt")
 async def subject(request: Request, sub_domain: str, board_dir: str):
-    threads = FutabaBoard().get_and_parse(sub_domain, board_dir)
+    threads = await FutabaBoard().get_and_parse(sub_domain, board_dir)
 
     # mayならば書き込み0件のスレを省く(スクリプト対策)
     if sub_domain == "may" and board_dir == "b":
@@ -242,7 +242,7 @@ async def thread(
     id: int,
     engine: sa.engine.Connectable = Depends(get_engine),
 ):
-    response = FutabaThread().get(sub_domain, board_dir, id)
+    response = await FutabaThread().get(sub_domain, board_dir, id)
     if response.status_code != 200:
         # 404の場合はFTBucket URLを含む特別なレスポンスを返す
         if response.status_code == 404:
@@ -250,7 +250,7 @@ async def thread(
         else:
             raise HTTPException(status_code=response.status_code)
     else:
-        thread = FutabaThread().parse(response.text)
+        thread = await FutabaThread().parse_async(response.text)
         thread = futaba_uploader(thread)
 
         # プロキシドメインを取得してふたばURLを2ch形式に変換
