@@ -1,5 +1,8 @@
 import json
 
+import pytest
+from fastapi import HTTPException
+
 from futaba2dat.futaba import FutabaBoard, FutabaThread
 
 
@@ -178,3 +181,73 @@ def test_futaba_thread2() -> None:
     }
     print(json.dumps(thread, indent=2))
     assert thread == expected
+
+
+def test_futaba_board_missing_cattable() -> None:
+    """cattableが存在しない異常なHTMLでHTTPExceptionが発生することをテスト"""
+    # cattableがないHTML
+    malformed_html = """
+    <html>
+    <body>
+        <div>何かのコンテンツ</div>
+        <table id="other_table">
+            <td>関係ないテーブル</td>
+        </table>
+    </body>
+    </html>
+    """
+
+    board = FutabaBoard()
+    with pytest.raises(HTTPException) as exc_info:
+        board.parse(malformed_html)
+
+    assert exc_info.value.status_code == 500
+    assert "カタログのHTML構造が異常です" in str(exc_info.value.detail)
+
+
+def test_futaba_thread_missing_thre() -> None:
+    """thre要素が存在しない異常なHTMLでHTTPExceptionが発生することをテスト"""
+    # thre要素がないHTML
+    malformed_html = """
+    <html>
+    <body>
+        <div class="other">何かのコンテンツ</div>
+        <span class="cntd">00:00頃消えます</span>
+    </body>
+    </html>
+    """
+
+    thread = FutabaThread()
+    with pytest.raises(HTTPException) as exc_info:
+        thread.parse(malformed_html)
+
+    assert exc_info.value.status_code == 500
+    assert "スレッドのHTML構造が異常です" in str(exc_info.value.detail)
+
+
+def test_futaba_thread_missing_cntd() -> None:
+    """cntd要素が存在しない異常なHTMLでHTTPExceptionが発生することをテスト"""
+    # cntd要素がないが、thre要素は存在するHTML
+    malformed_html = """
+    <html>
+    <body>
+        <div class="thre">
+            <span class="csb">題名</span>
+            <span class="cnm">投稿者名</span>
+            <span class="cnw">21/01/01(金)00:00:00 ID:XXXXXXXX</span>
+            <span class="cno">No.000000000</span>
+            <a class="sod">+</a>
+            <blockquote>本文</blockquote>
+        </div>
+        <!-- cntd要素が存在しない -->
+        <div class="other">何かのコンテンツ</div>
+    </body>
+    </html>
+    """
+
+    thread = FutabaThread()
+    with pytest.raises(HTTPException) as exc_info:
+        thread.parse(malformed_html)
+
+    assert exc_info.value.status_code == 500
+    assert "スレッド期限情報のHTML構造が異常です" in str(exc_info.value.detail)
