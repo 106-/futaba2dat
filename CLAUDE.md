@@ -89,9 +89,15 @@ make test      # 全テスト実行
 
 これにより、コード品質とテストの整合性が保たれます。
 
+## ClaudeCodeActionでの実行について
+
+ClaudeCodeActionでは以下のように `allowed_tools` が設定されています。ここにあるコマンド以外を実行しようとしないでください。
+```
+allowed_tools: "Bash(poetry:*),Bash(make format),Bash(make lint),Bash(make test),Bash(make build)"
+```
+
 ## 重要な注意点
 
-- ふたばへの外部HTTPリクエストは全て同期処理（非同期化によるリファクタリング余地あり）
 - 日本語テキストエンコーディング前提（Shift-JIS出力）
 - `futaba2dat/boards.json`の板定義は手動更新またはスクリプト再生成が必要
 - URL書き換えは`*.2chan.net/*/res/*.htm`パターンを`/test/read.cgi/`形式に変換する仕様
