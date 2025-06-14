@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 import httpx
 import requests
 from bs4 import BeautifulSoup
+from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
 
 from futaba2dat.settings import Settings
@@ -36,8 +37,13 @@ class FutabaBoard:
         """
         bs = BeautifulSoup(text, "html.parser")
 
+        # カタログテーブルの存在チェック
+        cattable = bs.find("table", id="cattable")
+        if not cattable:
+            raise HTTPException(status_code=500, detail="カタログのHTML構造が異常です")
+
         threads = []
-        for td in bs.find("table", id="cattable").find_all("td"):
+        for td in cattable.find_all("td"):
             id_match: Match[str] = re.match(r"res/(\d+?)\.htm", td.a.get("href"))
             if not id_match:
                 # スレッドIDが見つからない場合はスキップ
@@ -71,7 +77,12 @@ class FutabaThread:
 
     def parse(self, text: str):
         bs = BeautifulSoup(text, "html.parser")
+
+        # スレッド要素の存在チェック
         thread_bs = bs.find("div", class_="thre")
+        if not thread_bs:
+            raise HTTPException(status_code=500, detail="スレッドのHTML構造が異常です")
+
         thread = {"posts": []}
         thread_res_dict = {}
 
@@ -83,7 +94,12 @@ class FutabaThread:
         thread["title"] = thread["posts"][0]["body"].replace("<br>", " ")
 
         # スレッドが消える時刻を抽出する 例:"00:00頃消えます"
-        thread["expire"] = bs.find("span", class_="cntd").get_text(strip=True)
+        expire_span = bs.find("span", class_="cntd")
+        if not expire_span:
+            raise HTTPException(
+                status_code=500, detail="スレッド期限情報のHTML構造が異常です"
+            )
+        thread["expire"] = expire_span.get_text(strip=True)
 
         for i, post in enumerate(bs.find_all("table", border=0), start=2):
             thread["posts"].append(self._parse_post(i, post, thread_res_dict))
