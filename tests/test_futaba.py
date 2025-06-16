@@ -90,7 +90,7 @@ def test_futaba_thread1() -> None:
                 "id": "ID:xxxxxxxx",
                 "no": "No.000000002",
                 "sod": "+",
-                "body": ">引用<br>本文",
+                "body": "> 引用<br>本文",
                 "quote_res": [2],
             },
             {
@@ -114,7 +114,7 @@ def test_futaba_thread1() -> None:
                 "id": "ID:xxxxxxxx",
                 "no": "No.000000004",
                 "sod": "+",
-                "body": ">0000000000003.jpg<br>画像引用",
+                "body": "> 0000000000003.jpg<br>画像引用",
                 "quote_res": [4],
             },
         ],

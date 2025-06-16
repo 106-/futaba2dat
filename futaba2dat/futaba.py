@@ -194,4 +194,15 @@ class FutabaThread:
         if image_filename:
             thread_res_dict[image_filename] = i
 
+        # ChMateで引用文の数字がレス番号として誤認されることを防ぐため、
+        # 連続する引用符(>)の後にスペースを挿入する処理を追加
+        body_lines = post["body"].split("<br>")
+        processed_lines = []
+        for line in body_lines:
+            # 行頭の連続する>の後に続く文字列にスペースを挿入
+            # >>, >>>, >>>>... の後に数字や文字が続く場合を対象とする
+            processed_line = re.sub(r"^(>+)([^>\s].*)", r"\1 \2", line)
+            processed_lines.append(processed_line)
+        post["body"] = "<br>".join(processed_lines)
+
         return post
