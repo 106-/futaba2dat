@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 
 import httpx
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString
 from fastapi import HTTPException
 from fastapi.concurrency import run_in_threadpool
 
@@ -113,6 +113,10 @@ class FutabaThread:
         """
         post = {}
 
+        # <br>をタグではなく文字列にしたい
+        for br in post_bs.find_all("br"):
+            br.replace_with(NavigableString("<br>"))
+
         def get_span_text(span_attr):
             tag = post_bs.find("span", class_=span_attr)
             if tag:
@@ -165,9 +169,8 @@ class FutabaThread:
         # 投稿への"そうだね"を抽出
         post["sod"] = gettext_strip(post_bs.find("a", class_="sod"))
 
-        # 投稿の本文 DAT形式する都合上 `<br>` タグを含んだ状態で取っておきたい.
-        # のでタグの要素ごとに区切り文字を注入できる `separator` オプションを使う.
-        post["body"] = post_bs.find("blockquote").get_text(separator="<br>", strip=True)
+        # 投稿の本文
+        post["body"] = post_bs.find("blockquote").get_text(strip=True)
 
         body_by_lines = post["body"].split("<br>")
         # 引用レスのレス番号を取得して記録する。

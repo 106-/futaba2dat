@@ -164,7 +164,6 @@ def create_404_thread_response(sub_domain: str, board_dir: str, thread_id: int) 
 
 # テンプレートから生成された文字列をshift-jisにエンコードする. 同時にcontent-lengthも変える
 def convert_to_shiftjis(generated_content):
-
     # 文字列をbytesに変換
     s = generated_content.body.decode("utf-8")
 
