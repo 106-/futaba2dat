@@ -1,3 +1,4 @@
+import codecs
 import datetime
 import json
 from typing import Optional
@@ -13,6 +14,17 @@ from futaba2dat.db import History
 from futaba2dat.futaba import FutabaBoard, FutabaThread
 from futaba2dat.settings import Settings
 from futaba2dat.transform import convert_futaba_urls_to_2ch_format, futaba_uploader
+
+
+# 非SJIS文字を '&#xXXXX;' に置き換えるエラーハンドラ
+def _numref_errors(exc):
+    if isinstance(exc, UnicodeEncodeError):
+        ch = exc.object[exc.start]
+        return (f"&#x{ord(ch):X};", exc.start + 1)
+    raise exc
+
+
+codecs.register_error("numref", _numref_errors)
 
 app = FastAPI()
 
@@ -150,11 +162,16 @@ def create_404_thread_response(sub_domain: str, board_dir: str, thread_id: int) 
     }
 
 
+# テンプレートから生成された文字列をshift-jisにエンコードする. 同時にcontent-lengthも変える
 def convert_to_shiftjis(generated_content):
-    # テンプレートから生成された文字列をshift-jisにエンコードする. 同時にcontent-lengthも変える
-    generated_content.body = generated_content.body.decode("utf-8").encode(
-        "shift-jis", "ignore"
-    )
+
+    # 文字列をbytesに変換
+    s = generated_content.body.decode("utf-8")
+
+    # cp932(shift-jis)に変換. エンコード不可の文字だけ '&#xXXXX;' に置換される.
+    body_bytes = s.encode("cp932", "numref")
+
+    generated_content.body = body_bytes
     generated_content.headers["content-length"] = str(len(generated_content.body))
     return generated_content
 
