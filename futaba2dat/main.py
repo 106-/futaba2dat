@@ -172,6 +172,7 @@ def convert_to_shiftjis(generated_content):
 
     generated_content.body = body_bytes
     generated_content.headers["content-length"] = str(len(generated_content.body))
+    generated_content.headers["cache-control"] = "no-store"
     return generated_content
 
 
@@ -192,7 +193,9 @@ async def log(
     histories = db.get_recent(engine)
     analytics = db.get_dashboard_analytics(engine)
     context = {"request": request, "histories": histories, "analytics": analytics}
-    return templates.TemplateResponse(request, "log.j2", context)
+    response = templates.TemplateResponse(request, "log.j2", context)
+    response.headers["cache-control"] = "no-store"
+    return response
 
 
 # chmateの場合, 板のhtml内に<title>が含まれていればそれを板の名前としている.
