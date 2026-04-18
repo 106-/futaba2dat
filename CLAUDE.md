@@ -38,12 +38,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### 日常開発
 ```bash
 # 開発サーバー起動（ホットリロード対応）
-make run                           # ポート8001で起動
+make run                           # ポート80で起動
 
 # テスト実行
 make test                          # pytestで全テスト実行
-poetry run pytest tests/test_app.py -v          # アプリ統合テストのみ
-poetry run pytest tests/test_url_conversion.py  # URL変換テストのみ
+uv run pytest tests/test_app.py -v          # アプリ統合テストのみ
+uv run pytest tests/test_url_conversion.py  # URL変換テストのみ
 
 # コード品質
 make lint                          # コードスタイルチェック
@@ -93,7 +93,7 @@ make test      # 全テスト実行
 
 ClaudeCodeActionでは以下のように `allowed_tools` が設定されています。ここにあるコマンド以外を実行しようとしないでください。
 ```
-allowed_tools: "Bash(poetry:*),Bash(make format),Bash(make lint),Bash(make test),Bash(make build)"
+allowed_tools: "Bash(uv:*),Bash(make format),Bash(make lint),Bash(make test),Bash(make build)"
 ```
 
 ## 重要な注意点

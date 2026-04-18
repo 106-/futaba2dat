@@ -1,16 +1,11 @@
 FROM python:3.12-slim AS base
 RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
-FROM base AS poetry-exporter
-WORKDIR /tmp
-COPY poetry.lock pyproject.toml ./
-RUN pip install --no-cache-dir poetry>=2.0.0 \
-    && poetry self add poetry-plugin-export \
-    && poetry export -f requirements.txt --without-hashes > requirements.txt
-
 FROM base AS builder
-COPY --from=poetry-exporter /tmp/requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+WORKDIR /app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev --no-install-project
 
 FROM python:3.12-slim AS runner
 LABEL maintainer="106-"
@@ -21,8 +16,8 @@ RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 RUN groupadd --gid 1000 appuser \
     && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash appuser
 
-COPY --from=builder --chown=1000:1000 /root/.local /home/appuser/.local
-ENV PATH=/home/appuser/.local/bin:$PATH
+COPY --from=builder --chown=1000:1000 /app/.venv /app/.venv
+ENV PATH=/app/.venv/bin:$PATH
 
 WORKDIR /app
 

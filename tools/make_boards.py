@@ -1,5 +1,6 @@
 import json
 import re
+from difflib import unified_diff
 
 import requests
 from bs4 import BeautifulSoup
@@ -12,7 +13,7 @@ bs = BeautifulSoup(text, "html.parser")
 format = re.compile(Settings().futaba_board_uri_pattern)
 boards = []
 for b in bs.find_all(href=format):
-    groups = format.match(b.get("href")).groups()
+    groups = format.search(b.get("href")).groups()
     name = b.get_text()
     if "二次元裏" in name:
         name = f"{name}({groups[0]})"
@@ -21,4 +22,24 @@ for b in bs.find_all(href=format):
 hidden_boards = [["img", "b", "二次元裏(img)"], ["dat", "b", "二次元裏(dat)"]]
 boards.extend(hidden_boards)
 
-json.dump(boards, open("./futaba2dat/boards.json", "w+"), indent=2, ensure_ascii=False)
+boards_path = "./futaba2dat/boards.json"
+new_content = json.dumps(boards, indent=2, ensure_ascii=False) + "\n"
+
+try:
+    old_content = open(boards_path).read()
+except FileNotFoundError:
+    old_content = ""
+
+diff = list(unified_diff(
+    old_content.splitlines(keepends=True),
+    new_content.splitlines(keepends=True),
+    fromfile="boards.json (現在)",
+    tofile="boards.json (新規)",
+))
+
+if diff:
+    print("".join(diff))
+else:
+    print("変更なし")
+
+open(boards_path, "w").write(new_content)

@@ -14,7 +14,7 @@ PORT?=80
 
 run:
 	mkdir -p ./db
-	DB_NAME=./db/log.sqlite poetry run uvicorn futaba2dat.main:app \
+	DB_NAME=./db/log.sqlite uv run uvicorn futaba2dat.main:app \
 		--host 0.0.0.0 \
 		--port $(PORT) \
 		--reload \
@@ -38,27 +38,27 @@ clean:
 	docker images 'futaba2dat' --format '{{.Repository}}:{{.Tag}}' | xargs -r docker rmi
 
 test:
-	poetry run pytest -m "not integration"
+	uv run pytest -m "not integration"
 
 test-integration:
-	poetry run pytest -m integration -v
+	uv run pytest -m integration -v
 
 test-all:
-	poetry run pytest -v
+	uv run pytest -v
 
 docker-build:
 	docker build -t futaba2dat:$(TAG) .
 
 lint:
-	poetry run ruff check ./futaba2dat ./tests
+	uv run ruff check ./futaba2dat ./tests
 
 format:
-	poetry run ruff check --fix ./futaba2dat ./tests
-	poetry run ruff format ./futaba2dat ./tests
+	uv run ruff check --fix ./futaba2dat ./tests
+	uv run ruff format ./futaba2dat ./tests
 
 renew-container:
 	docker compose pull
 	docker compose up -d
 
 reload-boards:
-	poetry run python -m tools.make_boards
+	uv run python -m tools.make_boards
