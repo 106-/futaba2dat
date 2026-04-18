@@ -29,8 +29,8 @@ def test_subject_txt(sub_domain, board_dir):
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain"
 
-    # レスポンスがShift-JISでエンコードされていることを確認
-    content = response.content.decode("shift-jis")
+    # レスポンスがCP932でエンコードされていることを確認
+    content = response.content.decode("cp932")
 
     # subject.txtの形式確認：<thread_id>.dat<>スレッドタイトル (<post_count>)
     lines = content.strip().split("\n")
@@ -52,7 +52,7 @@ def test_thread_dat(sub_domain, board_dir):
     subject_response = client.get(f"/{sub_domain}/{board_dir}/subject.txt")
     assert subject_response.status_code == 200
 
-    content = subject_response.content.decode("shift-jis")
+    content = subject_response.content.decode("cp932")
     lines = content.strip().split("\n")
 
     # 最初のスレッドのIDを取得
@@ -65,8 +65,8 @@ def test_thread_dat(sub_domain, board_dir):
     assert dat_response.status_code == 200
     assert dat_response.headers["content-type"] == "text/plain"
 
-    # レスポンスがShift-JISでエンコードされていることを確認
-    dat_content = dat_response.content.decode("shift-jis")
+    # レスポンスがCP932でエンコードされていることを確認
+    dat_content = dat_response.content.decode("cp932")
 
     # DAT形式の確認：名前<>メール<>日付 ID<>本文<>スレッドタイトル
     dat_lines = dat_content.strip().split("\n")
@@ -100,8 +100,8 @@ def test_board_top_page(sub_domain, board_dir, expected_name):
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/html"
 
-    # レスポンスがShift-JISでエンコードされていることを確認
-    html_content = response.content.decode("shift-jis")
+    # レスポンスがCP932でエンコードされていることを確認
+    html_content = response.content.decode("cp932")
 
     # HTMLの基本構造確認（板トップページは簡素なのでtitleのみ確認）
     assert "<title>" in html_content
@@ -127,8 +127,8 @@ def test_setting_txt(sub_domain, board_dir, expected_name):
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain"
 
-    # レスポンスがShift-JISでエンコードされていることを確認
-    content = response.content.decode("shift-jis")
+    # レスポンスがCP932でエンコードされていることを確認
+    content = response.content.decode("cp932")
 
     # SETTING.TXTの基本形式確認
     lines = content.strip().split("\n")
@@ -153,7 +153,7 @@ def test_full_workflow(sub_domain, board_dir):
     subject_response = client.get(f"/{sub_domain}/{board_dir}/subject.txt")
     assert subject_response.status_code == 200
 
-    content = subject_response.content.decode("shift-jis")
+    content = subject_response.content.decode("cp932")
     lines = content.strip().split("\n")
     assert len(lines) > 0
 
@@ -165,7 +165,7 @@ def test_full_workflow(sub_domain, board_dir):
     assert dat_response.status_code == 200
 
     # 4. DATファイルの内容確認
-    dat_content = dat_response.content.decode("shift-jis")
+    dat_content = dat_response.content.decode("cp932")
     dat_lines = dat_content.strip().split("\n")
     assert len(dat_lines) >= 1
 
@@ -187,7 +187,7 @@ def test_error_handling_404_thread(sub_domain, board_dir):
     # 404エラーでもFTBucketリンクを含む200レスポンスが返される
     assert response.status_code == 200
 
-    content = response.content.decode("shift-jis")
+    content = response.content.decode("cp932")
 
     # 404メッセージの確認
     assert "スレッドが見つかりません" in content or "削除された" in content
