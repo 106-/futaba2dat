@@ -30,12 +30,14 @@ try:
 except FileNotFoundError:
     old_content = ""
 
-diff = list(unified_diff(
-    old_content.splitlines(keepends=True),
-    new_content.splitlines(keepends=True),
-    fromfile="boards.json (現在)",
-    tofile="boards.json (新規)",
-))
+diff = list(
+    unified_diff(
+        old_content.splitlines(keepends=True),
+        new_content.splitlines(keepends=True),
+        fromfile="boards.json (現在)",
+        tofile="boards.json (新規)",
+    )
+)
 
 if diff:
     print("".join(diff))

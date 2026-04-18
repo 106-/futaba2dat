@@ -50,11 +50,10 @@ docker-build:
 	docker build -t futaba2dat:$(TAG) .
 
 lint:
-	uv run ruff check ./futaba2dat ./tests
+	uv run ruff check ./
 
 format:
-	uv run ruff check --fix ./futaba2dat ./tests
-	uv run ruff format ./futaba2dat ./tests
+	uv run ruff format ./
 
 renew-container:
 	docker compose pull
