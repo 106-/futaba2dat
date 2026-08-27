@@ -1,6 +1,6 @@
 import re
 
-from futaba2dat.settings import Settings
+from settings import Settings
 
 
 # ふたばアップローダー上のファイルを表す文字列をURLに変換する

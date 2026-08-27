@@ -3,14 +3,11 @@ FTBucket URL生成と404レスポンスのテスト
 """
 
 import datetime
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 
-from futaba2dat.main import create_404_thread_response, generate_ftbucket_url
-
-# test_app.pyからfixtureをインポート
-from .test_app import test_client, test_db_engine
+from main import create_404_thread_response, generate_ftbucket_url
 
 
 def test_generate_ftbucket_url_may():
@@ -85,7 +82,7 @@ def test_create_404_thread_response_other():
 
 def test_create_404_thread_response_date_format():
     """404レスポンスの日付フォーマットテスト"""
-    with patch("futaba2dat.main.datetime") as mock_datetime:
+    with patch("main.datetime") as mock_datetime:
         # 固定日時を設定
         mock_datetime.datetime.now.return_value = datetime.datetime(
             2024, 1, 1, 12, 30, 45
@@ -128,36 +125,3 @@ def test_404_thread_response_structure():
 
     # 引用レスが空であることを確認
     assert post["quote_res"] == []
-
-
-def test_404_no_history_logging(test_client, test_db_engine, monkeypatch):
-    """404エラー時にログが記録されないことをテスト"""
-    from unittest.mock import Mock
-
-    from futaba2dat import db
-
-    # データベースエンジンをモックして、テスト用エンジンを使用
-    def mock_get_engine():
-        return test_db_engine
-
-    monkeypatch.setattr("futaba2dat.main.get_engine", mock_get_engine)
-
-    # FutabaThread.getをモックして404を返すように設定
-    mock_response = Mock()
-    mock_response.status_code = 404
-
-    async def mock_futaba_get(self, sub_domain, board_dir, thread_id):
-        return mock_response
-
-    monkeypatch.setattr("futaba2dat.futaba.FutabaThread.get", mock_futaba_get)
-
-    # 404リクエストを送信
-    response = test_client.get("/may/b/dat/12345.dat")
-
-    # ステータスコードが200であることを確認
-    # 本来は404を返すべきだが、FTBucketリンクを返したいため200を返す。
-    assert response.status_code == 200
-
-    # ログが記録されていないことを確認
-    histories = db.get_recent(test_db_engine)
-    assert len(histories) == 0

@@ -11,20 +11,15 @@ pytest -m integration
 """
 
 import pytest
-from fastapi.testclient import TestClient
-
-from futaba2dat.main import app
-
-client = TestClient(app)
 
 
 @pytest.mark.integration
 @pytest.mark.parametrize(
     "sub_domain,board_dir", [("may", "b"), ("img", "b"), ("jun", "jun"), ("dec", "55")]
 )
-def test_subject_txt(sub_domain, board_dir):
+def test_subject_txt(worker_client, sub_domain, board_dir):
     """各板の実際のsubject.txtの取得テスト"""
-    response = client.get(f"/{sub_domain}/{board_dir}/subject.txt")
+    response = worker_client.get(f"/{sub_domain}/{board_dir}/subject.txt")
 
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain"
@@ -46,10 +41,10 @@ def test_subject_txt(sub_domain, board_dir):
 @pytest.mark.parametrize(
     "sub_domain,board_dir", [("may", "b"), ("img", "b"), ("jun", "jun"), ("dec", "55")]
 )
-def test_thread_dat(sub_domain, board_dir):
+def test_thread_dat(worker_client, sub_domain, board_dir):
     """各板の実際のスレッドDATファイルの取得テスト"""
     # まずsubject.txtから有効なスレッドIDを取得
-    subject_response = client.get(f"/{sub_domain}/{board_dir}/subject.txt")
+    subject_response = worker_client.get(f"/{sub_domain}/{board_dir}/subject.txt")
     assert subject_response.status_code == 200
 
     content = subject_response.content.decode("cp932")
@@ -60,7 +55,7 @@ def test_thread_dat(sub_domain, board_dir):
     thread_id = first_line.split(".dat<>")[0]
 
     # そのスレッドのDATファイルを取得
-    dat_response = client.get(f"/{sub_domain}/{board_dir}/dat/{thread_id}.dat")
+    dat_response = worker_client.get(f"/{sub_domain}/{board_dir}/dat/{thread_id}.dat")
 
     assert dat_response.status_code == 200
     assert dat_response.headers["content-type"] == "text/plain"
@@ -93,9 +88,9 @@ def test_thread_dat(sub_domain, board_dir):
         ("dec", "55", "東方裏"),
     ],
 )
-def test_board_top_page(sub_domain, board_dir, expected_name):
+def test_board_top_page(worker_client, sub_domain, board_dir, expected_name):
     """各板のトップページの取得テスト"""
-    response = client.get(f"/{sub_domain}/{board_dir}/")
+    response = worker_client.get(f"/{sub_domain}/{board_dir}/")
 
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/html"
@@ -120,9 +115,9 @@ def test_board_top_page(sub_domain, board_dir, expected_name):
         ("dec", "55", "東方裏"),
     ],
 )
-def test_setting_txt(sub_domain, board_dir, expected_name):
+def test_setting_txt(worker_client, sub_domain, board_dir, expected_name):
     """各板のSETTING.TXTファイルの取得テスト"""
-    response = client.get(f"/{sub_domain}/{board_dir}/SETTING.TXT")
+    response = worker_client.get(f"/{sub_domain}/{board_dir}/SETTING.TXT")
 
     assert response.status_code == 200
     assert response.headers["content-type"] == "text/plain"
@@ -142,15 +137,15 @@ def test_setting_txt(sub_domain, board_dir, expected_name):
 @pytest.mark.parametrize(
     "sub_domain,board_dir", [("may", "b"), ("img", "b"), ("jun", "jun"), ("dec", "55")]
 )
-def test_full_workflow(sub_domain, board_dir):
+def test_full_workflow(worker_client, sub_domain, board_dir):
     """各板のフルワークフローテスト：板一覧→スレッド一覧→スレッド内容"""
 
     # 1. 板トップページにアクセス
-    board_response = client.get(f"/{sub_domain}/{board_dir}/")
+    board_response = worker_client.get(f"/{sub_domain}/{board_dir}/")
     assert board_response.status_code == 200
 
     # 2. スレッド一覧（subject.txt）を取得
-    subject_response = client.get(f"/{sub_domain}/{board_dir}/subject.txt")
+    subject_response = worker_client.get(f"/{sub_domain}/{board_dir}/subject.txt")
     assert subject_response.status_code == 200
 
     content = subject_response.content.decode("cp932")
@@ -161,7 +156,7 @@ def test_full_workflow(sub_domain, board_dir):
     first_line = lines[0]
     thread_id = first_line.split(".dat<>")[0]
 
-    dat_response = client.get(f"/{sub_domain}/{board_dir}/dat/{thread_id}.dat")
+    dat_response = worker_client.get(f"/{sub_domain}/{board_dir}/dat/{thread_id}.dat")
     assert dat_response.status_code == 200
 
     # 4. DATファイルの内容確認
@@ -179,10 +174,10 @@ def test_full_workflow(sub_domain, board_dir):
 @pytest.mark.parametrize(
     "sub_domain,board_dir", [("may", "b"), ("img", "b"), ("jun", "jun"), ("dec", "55")]
 )
-def test_error_handling_404_thread(sub_domain, board_dir):
+def test_error_handling_404_thread(worker_client, sub_domain, board_dir):
     """各板の存在しないスレッドの404ハンドリングテスト"""
     # 存在しないスレッドID（非常に大きな数値）でアクセス
-    response = client.get(f"/{sub_domain}/{board_dir}/dat/999999999.dat")
+    response = worker_client.get(f"/{sub_domain}/{board_dir}/dat/999999999.dat")
 
     # 404エラーでもFTBucketリンクを含む200レスポンスが返される
     assert response.status_code == 200

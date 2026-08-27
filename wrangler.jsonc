@@ -1,0 +1,54 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "futaba2dat",
+  "workers_dev": true,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "test.die-or.work/*",
+      "zone_name": "die-or.work"
+    }
+  ],
+  "placement": {
+    "region": "gcp:asia-northeast1"
+  },
+  "main": "src/worker.py",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["python_workers"],
+  "find_additional_modules": true,
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/*.j2", "**/boards.json"],
+      "fallthrough": true
+    }
+  ],
+  "limits": {
+    "cpu_ms": 1000
+  },
+  "vars": {
+    "HISTORY_WRITES": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "futaba2dat-history",
+      "database_id": "1dfe323c-e6bc-466d-a1e9-ea21fab5e173"
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "run_worker_first": false
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.1
+    }
+  }
+}
