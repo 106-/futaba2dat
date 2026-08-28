@@ -5,6 +5,10 @@ from dataclasses import dataclass, field
 class Settings:
     upstream_timeout_ms: int = 15_000
     upstream_max_response_bytes: int = 8 * 1024 * 1024
+    thread_cache_min_replies: int = 100
+    thread_cache_candidate_ttl_seconds: int = 5 * 60
+    thread_cache_hot_ttl_seconds: int = 60 * 60
+    thread_cache_full_sync_seconds: int = 5 * 60
     futaba_catalog_view_cookie: dict[str, str] = field(
         default_factory=lambda: {"cxyl": "100x100x100x1x6"}
     )
@@ -12,6 +16,9 @@ class Settings:
     futaba_thread_url: str = "https://{0}.2chan.net/{1}/res/{2}.htm"
     futaba_thread_json_url: str = (
         "https://{0}.2chan.net/{1}/futaba.php?mode=json&res={2}"
+    )
+    futaba_thread_incremental_json_url: str = (
+        "https://{0}.2chan.net/{1}/futaba.php?mode=json&res={2}&start={3}"
     )
     futaba_post_json_url: str = (
         "https://{0}.2chan.net/{1}/futaba.php?mode=json&start={2}&end={2}"

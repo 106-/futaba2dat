@@ -27,7 +27,7 @@
     "cpu_ms": 1000
   },
   "vars": {
-    "HISTORY_WRITES": "false"
+    "HISTORY_WRITES": "true"
   },
   "d1_databases": [
     {

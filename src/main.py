@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 from db import D1HistoryRepository, History
 from futaba import FutabaBoard, FutabaThread
 from settings import Settings
+from thread_cache import CloudflareThreadStateStore, ThreadCacheCoordinator
 from transform import convert_futaba_urls_to_2ch_format, futaba_uploader
 
 logger = logging.getLogger(__name__)
@@ -213,7 +214,9 @@ async def thread(
     repository: D1HistoryRepository = Depends(get_history_repository),
 ):
     board_title = get_board_name(sub_domain, board_dir)
-    response = await FutabaThread().get(sub_domain, board_dir, id)
+    response = await ThreadCacheCoordinator(CloudflareThreadStateStore()).get(
+        str(request.url), sub_domain, board_dir, id
+    )
     if response.status_code != 200:
         if response.status_code == 404:
             parsed_thread = create_404_thread_response(sub_domain, board_dir, id)

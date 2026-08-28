@@ -418,6 +418,23 @@ async def test_futaba_thread_fetches_opener_and_replies_in_parallel(monkeypatch)
 
 
 @pytest.mark.asyncio
+async def test_futaba_thread_incremental_fetch_uses_start_post_number(monkeypatch):
+    requested_urls = []
+
+    async def fake_fetch_json(url):
+        requested_urls.append(url)
+        return UpstreamJsonResponse(200, {"die": "00:00", "sd": {}})
+
+    monkeypatch.setattr("futaba.fetch_json", fake_fetch_json)
+    response = await FutabaThread().get_incremental("may", "b", 123, 456)
+
+    assert response.status_code == 200
+    assert requested_urls == [
+        "https://may.2chan.net/b/futaba.php?mode=json&res=123&start=456"
+    ]
+
+
+@pytest.mark.asyncio
 async def test_futaba_thread_missing_opener_is_not_found(monkeypatch):
     async def fake_fetch_json(url):
         if "&res=" in url:

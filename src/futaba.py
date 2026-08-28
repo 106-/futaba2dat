@@ -244,8 +244,7 @@ async def _fetch_json_once(url: str) -> UpstreamJsonResponse:
         error_page = body.decode("cp932", errors="replace")
         retry_after_match = _RETRY_AFTER_SECONDS_RE.search(error_page)
         retry_after_seconds = (
-            float(retry_after_match.group(1))
-            + _JSON_FETCH_RATE_LIMIT_MARGIN_SECONDS
+            float(retry_after_match.group(1)) + _JSON_FETCH_RATE_LIMIT_MARGIN_SECONDS
             if retry_after_match
             else None
         )
@@ -293,9 +292,7 @@ async def _fetch_json_once(url: str) -> UpstreamJsonResponse:
                 error_type=type(exc).__name__,
                 **error_context,
             )
-            raise RetryableUpstreamJsonError(
-                "Upstream returned invalid JSON"
-            ) from exc
+            raise RetryableUpstreamJsonError("Upstream returned invalid JSON") from exc
 
     log_event(
         "upstream_fetch_completed",
@@ -459,6 +456,23 @@ class FutabaThread:
             opener=opener_response.data,
             thread=thread_response.data,
         )
+
+    async def get_incremental(
+        self,
+        sub_domain: str,
+        board_dir: str,
+        thread_id: str | int,
+        start_post_no: int,
+    ) -> UpstreamJsonResponse:
+        """指定した投稿番号以降の返信と最新メタデータを取得する。"""
+        setting = Settings()
+        thread_url = setting.futaba_thread_incremental_json_url.format(
+            sub_domain,
+            board_dir,
+            thread_id,
+            start_post_no,
+        )
+        return await fetch_json(thread_url)
 
     async def parse_async(
         self,
