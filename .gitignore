@@ -1,6 +1,33 @@
-*.pyc
+# Python caches and test artifacts
+__pycache__/
+*.py[cod]
+/.pytest_cache/
+/.ruff_cache/
+/.mypy_cache/
+/.coverage
+/htmlcov/
+
+# Local Python environments
+/.venv/
+/.venv-workers/
+
+# Python Workers generated dependencies
+/python_modules/
+/pylock.toml
+
+# Wrangler local state and local variables
+/.wrangler/
+/.dev.vars
+
+# Local databases and generated SQL
 *.db
-.vscode/
-db/
-.venv/
-log.sqlite
+*.sqlite
+*.d1.sql
+
+# Local editor and OS files
+/.vscode/
+/.claude/settings.local.json
+.DS_Store
+
+# atode kesu
+migrations/

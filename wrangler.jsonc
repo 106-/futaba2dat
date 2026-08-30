@@ -1,0 +1,74 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "futaba2dat",
+  "workers_dev": true,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "test.die-or.work/*",
+      "zone_name": "die-or.work"
+    }
+  ],
+  "placement": {
+    "region": "gcp:asia-northeast1"
+  },
+  "main": "src/worker.py",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["python_workers"],
+  "find_additional_modules": true,
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/*.j2", "**/boards.json"],
+      "fallthrough": true
+    }
+  ],
+  "limits": {
+    "cpu_ms": 1000
+  },
+  "vars": {
+    "HISTORY_WRITES": "true"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "futaba2dat-history-dev",
+      "database_id": "336780f1-5279-40c0-bf81-e4d611d73fc6"
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "run_worker_first": false
+  },
+  "observability": {
+    "enabled": true,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.1
+    }
+  },
+  "env": {
+    "production": {
+      "routes": [
+        {
+          "pattern": "die-or.work/*",
+          "zone_name": "die-or.work"
+        }
+      ],
+      "vars": {
+        "HISTORY_WRITES": "true"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "futaba2dat-history-prod",
+          "database_id": "9c2ee111-95d0-4ca5-bd09-b79c64ab345b"
+        }
+      ]
+    }
+  }
+}

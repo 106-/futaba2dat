@@ -2,7 +2,7 @@
 URL変換機能のテスト
 """
 
-from futaba2dat.transform import convert_futaba_urls_to_2ch_format
+from transform import convert_futaba_urls_to_2ch_format
 
 
 def test_convert_futaba_urls_to_2ch_format():
