@@ -1,4 +1,4 @@
-.PHONY: run test test-integration test-all lint format reload-boards deploy tail
+.PHONY: run test test-integration test-all lint format reload-boards deploy deploy-test deploy-production tail tail-test tail-production
 
 PYWRANGLER := uv run pywrangler
 
@@ -23,8 +23,18 @@ format:
 reload-boards:
 	uv run python -m tools.make_boards
 
-deploy:
-	$(PYWRANGLER) deploy
+deploy: deploy-test
 
-tail:
-	$(PYWRANGLER) tail
+deploy-test:
+	$(PYWRANGLER) deploy --env ""
+
+deploy-production:
+	$(PYWRANGLER) deploy --env production
+
+tail: tail-test
+
+tail-test:
+	$(PYWRANGLER) tail --env ""
+
+tail-production:
+	$(PYWRANGLER) tail --env production

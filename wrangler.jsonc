@@ -32,8 +32,8 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "futaba2dat-history",
-      "database_id": "1dfe323c-e6bc-466d-a1e9-ea21fab5e173"
+      "database_name": "futaba2dat-history-dev",
+      "database_id": "336780f1-5279-40c0-bf81-e4d611d73fc6"
     }
   ],
   "assets": {
@@ -49,6 +49,26 @@
     "traces": {
       "enabled": true,
       "head_sampling_rate": 0.1
+    }
+  },
+  "env": {
+    "production": {
+      "routes": [
+        {
+          "pattern": "die-or.work/*",
+          "zone_name": "die-or.work"
+        }
+      ],
+      "vars": {
+        "HISTORY_WRITES": "true"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "futaba2dat-history-prod",
+          "database_id": "9c2ee111-95d0-4ca5-bd09-b79c64ab345b"
+        }
+      ]
     }
   }
 }

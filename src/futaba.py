@@ -10,6 +10,8 @@ from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 from fastapi import HTTPException
+from js import AbortSignal
+from pyodide.http import AbortError, pyfetch
 
 from settings import Settings
 from telemetry import log_event
@@ -95,9 +97,6 @@ async def fetch_text(
     url: str, cookies: dict[str, str] | None = None
 ) -> UpstreamResponse:
     """Cloudflare Workers の Fetch API でふたばを取得する。"""
-    from js import AbortSignal
-    from pyodide.http import AbortError, pyfetch
-
     settings = Settings()
     started = time.perf_counter()
     headers = None
@@ -179,9 +178,6 @@ async def fetch_text(
 
 async def _fetch_json_once(url: str) -> UpstreamJsonResponse:
     """Cloudflare Workers の Fetch API でUTF-8 JSONを1回取得する。"""
-    from js import AbortSignal
-    from pyodide.http import AbortError, pyfetch
-
     settings = Settings()
     started = time.perf_counter()
     target = urlparse(url)

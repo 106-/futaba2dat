@@ -5,6 +5,10 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 from urllib.parse import urlsplit
 
+from js import Request as JsRequest
+from js import Response as JsResponse
+from js import caches
+
 from futaba import FutabaThread, ThreadJsonResponse
 from settings import Settings
 from telemetry import log_event
@@ -92,9 +96,6 @@ class CloudflareThreadStateStore:
     async def get(self, cache_url: str) -> CachedThreadState | None:
         started = time.perf_counter()
         try:
-            from js import Request as JsRequest
-            from js import caches
-
             response = await caches.default.match(JsRequest.new(cache_url))
             if response is None:
                 return None
@@ -122,10 +123,6 @@ class CloudflareThreadStateStore:
         started = time.perf_counter()
         serialized = state.to_json()
         try:
-            from js import Request as JsRequest
-            from js import Response as JsResponse
-            from js import caches
-
             response = JsResponse.new(serialized)
             response.headers.set("Cache-Control", f"s-maxage={ttl_seconds}")
             response.headers.set("Content-Type", "application/json; charset=utf-8")
@@ -150,9 +147,6 @@ class CloudflareThreadStateStore:
 
     async def delete(self, cache_url: str) -> None:
         try:
-            from js import Request as JsRequest
-            from js import caches
-
             await caches.default.delete(JsRequest.new(cache_url))
         except Exception as exc:
             log_event(
