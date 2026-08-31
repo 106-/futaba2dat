@@ -28,6 +28,3 @@ __pycache__/
 /.vscode/
 /.claude/settings.local.json
 .DS_Store
-
-# atode kesu
-migrations/

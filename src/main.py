@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 
@@ -69,6 +69,16 @@ def get_history_repository(request: Request) -> D1HistoryRepository:
 
 def history_writes_enabled(request: Request) -> bool:
     return request.scope["env"].HISTORY_WRITES == "true"
+
+
+async def add_history_in_background(
+    repository: D1HistoryRepository, history: History
+) -> None:
+    """レスポンスを失敗させずにアクセス履歴を保存する。"""
+    try:
+        await repository.add(history)
+    except Exception:
+        logger.exception("Background D1 history write failed")
 
 
 def get_proxy_domain(request: Request) -> str:
@@ -211,6 +221,7 @@ async def thread(
     sub_domain: str,
     board_dir: str,
     id: int,
+    background_tasks: BackgroundTasks,
     repository: D1HistoryRepository = Depends(get_history_repository),
 ):
     board_title = get_board_name(sub_domain, board_dir)
@@ -240,14 +251,16 @@ async def thread(
     board_name = f"{board_title}({sub_domain}_{board_dir})"
 
     if response.status_code == 200 and history_writes_enabled(request):
-        await repository.add(
+        background_tasks.add_task(
+            add_history_in_background,
+            repository,
             History(
                 link=thread_uri,
                 title=parsed_thread["title"],
                 board=board_name,
                 host=get_client_ip(request),
                 created_at=int(time.time() * 1000),
-            )
+            ),
         )
 
     generated_content = templates.TemplateResponse(
