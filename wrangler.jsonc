@@ -5,8 +5,8 @@
   "preview_urls": false,
   "routes": [
     {
-      "pattern": "test.die-or.work/*",
-      "zone_name": "die-or.work"
+      "pattern": "test.die-or.work",
+      "custom_domain": true
     }
   ],
   "placement": {
@@ -55,8 +55,8 @@
     "production": {
       "routes": [
         {
-          "pattern": "die-or.work/*",
-          "zone_name": "die-or.work"
+          "pattern": "die-or.work",
+          "custom_domain": true
         }
       ],
       "vars": {
