@@ -1,5 +1,6 @@
 import pytest
 from fastapi import HTTPException
+from jinja2 import Environment, FileSystemLoader
 
 from futaba import (
     FutabaBoard,
@@ -287,6 +288,61 @@ def test_futaba_thread_json_without_replies() -> None:
 
     assert len(thread["posts"]) == 1
     assert thread["posts"][0]["no"] == "No.123"
+
+
+@pytest.mark.parametrize(
+    ("extension", "thumbnail", "expected_thumbnail"),
+    [
+        ("mp4", "/b/thumb/from-json.jpg", "/b/thumb/from-json.jpg"),
+        ("webm", "", "/b/thumb/123456789s.jpg"),
+    ],
+)
+def test_futaba_thread_json_video_thumbnail(
+    extension: str, thumbnail: str, expected_thumbnail: str
+) -> None:
+    opener = {
+        "res": {
+            "123": {
+                "now": "26/09/07(月)00:00:00",
+                "com": "動画本文",
+                "src": f"/b/src/123456789.{extension}",
+                "thumb": thumbnail,
+            }
+        }
+    }
+
+    thread = FutabaThread().parse(opener, {"die": "00:00", "sd": {}, "res": {}}, "123")
+
+    assert thread["posts"][0]["thumbnail"] == expected_thumbnail
+
+
+def test_thread_template_puts_thumbnail_before_video_and_body() -> None:
+    opener = {
+        "res": {
+            "123": {
+                "now": "26/09/07(月)00:00:00",
+                "com": "動画本文",
+                "src": "/b/src/123456789.mp4",
+                "thumb": "/b/thumb/123456789s.jpg",
+            }
+        }
+    }
+    thread = FutabaThread().parse(opener, {"die": "00:00", "sd": {}, "res": {}}, "123")
+    template = Environment(
+        loader=FileSystemLoader("src/templates"), autoescape=True
+    ).get_template("thread.j2")
+
+    rendered = template.render(
+        thread=thread,
+        image_url_root="https://may.2chan.net",
+        thread_uri="https://may.2chan.net/b/res/123.htm",
+    )
+
+    assert (
+        "https://may.2chan.net/b/thumb/123456789s.jpg<br>"
+        "https://may.2chan.net/b/src/123456789.mp4<br>"
+        "動画本文<>" in rendered
+    )
 
 
 def test_futaba_thread_json_uses_host_when_id_is_empty() -> None:
