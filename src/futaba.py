@@ -56,6 +56,7 @@ class RetryableUpstreamJsonError(RuntimeError):
 _BR_TAG_RE = re.compile(r"<br\s*/?>", flags=re.IGNORECASE)
 _HTML_TAG_RE = re.compile(r"<[^>]*>", flags=re.DOTALL)
 _RETRY_AFTER_SECONDS_RE = re.compile(r"あと(\d+)秒")
+_VIDEO_EXTENSIONS = frozenset({".mp4", ".webm"})
 _JSON_FETCH_ATTEMPTS = 3
 _JSON_FETCH_RETRY_DELAY_SECONDS = 0.25
 _JSON_FETCH_RATE_LIMIT_MARGIN_SECONDS = 0.25
@@ -554,7 +555,8 @@ class FutabaThread:
         }.get(post_data.get("del"))
         if deletion_notice:
             body = f"{deletion_notice}<br>{body}" if body else deletion_notice
-        image = post_data.get("src") or None
+        image_value = post_data.get("src")
+        image = str(image_value) if image_value else None
         image_filename = os.path.basename(urlparse(str(image)).path) if image else None
         poster_id = post_data.get("id") or post_data.get("host") or None
         sod_count = sod_values.get(post_no)
@@ -569,6 +571,10 @@ class FutabaThread:
             "sod": f"そうだねx{sod_count}" if sod_count is not None else "+",
             "body": body,
         }
+
+        thumbnail = self._video_thumbnail(post_data, image)
+        if thumbnail:
+            post["thumbnail"] = thumbnail
 
         body_by_lines = body.split("<br>")
         # 引用レスのレス番号を取得して記録する。
@@ -607,6 +613,24 @@ class FutabaThread:
         post["body"] = "<br>".join(processed_lines)
 
         return post
+
+    @staticmethod
+    def _video_thumbnail(post_data: dict[str, Any], image: str | None) -> str | None:
+        if image is None:
+            return None
+
+        image_path = urlparse(image).path
+        image_stem, image_extension = os.path.splitext(image_path)
+        if image_extension.lower() not in _VIDEO_EXTENSIONS:
+            return None
+
+        thumbnail = post_data.get("thumb")
+        if thumbnail:
+            return str(thumbnail)
+
+        if "/src/" not in image_stem:
+            return None
+        return f"{image_stem.replace('/src/', '/thumb/', 1)}s.jpg"
 
     @staticmethod
     def _comment_to_text(comment: str) -> str:
